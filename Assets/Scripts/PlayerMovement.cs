@@ -1,42 +1,74 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.InputSystem;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] float speed;
-    [SerializeField] Vector2 cameraspeed;
-    [SerializeField] Camera m_camera;
-    [SerializeField] InputAction actions;
-    Rigidbody rb;
-    private Vector2 velocidade;
-    private Vector2 cameraVelocity;
-    private Vector3 targetAngle;
-    
+    [Header("Configurações de Movimento")]
+    [SerializeField] float moveSpeed = 5f;
+    [SerializeField] float mouseSensitivity = 100f;
+    [SerializeField] float rotationSmoothTime = 0.05f; 
+    [SerializeField] Camera playerCamera;
 
-    // Start is called before the first frame update
+    [Header("Input Actions")]
+    [SerializeField] InputAction moveAction;
+    [SerializeField] InputAction lookAction;
+
+    private Rigidbody rb;
+    private Vector2 moveInput;
+    private Vector2 lookInput;
+    private float pitch;
+    private float yaw;
+
     void Start()
     {
-        rb = this.GetComponent<Rigidbody>();
-        targetAngle = this.gameObject.transform.rotation.eulerAngles;
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
+
+        moveAction.Enable();
+        lookAction.Enable();
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        if (playerCamera == null)
+            playerCamera = GetComponentInChildren<Camera>();
+
+        yaw = transform.eulerAngles.y;
+        pitch = playerCamera.transform.localEulerAngles.x;
+        if (pitch > 180f) pitch -= 360f;
     }
 
-    private void FixedUpdate()
+    void Update()
     {
-        rb.velocity = (velocidade.x*transform.right + velocidade.y*transform.forward) * Time.fixedDeltaTime * 300 * speed;
-        targetAngle += new Vector3(cameraVelocity.y * cameraspeed.y, cameraVelocity.x * cameraspeed.x, 0) * Time.fixedDeltaTime * 300;
-        rb.MoveRotation(Quaternion.Euler(0,targetAngle.y,0));
-        m_camera.transform.rotation = Quaternion.Euler(targetAngle);
+        moveInput = moveAction.ReadValue<Vector2>();
+        lookInput = lookAction.ReadValue<Vector2>();
+
+       
+        yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
+        pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
+        pitch = Mathf.Clamp(pitch, -80f, 80f);
+
+        
+        playerCamera.transform.localRotation = Quaternion.Slerp(
+            playerCamera.transform.localRotation,
+            Quaternion.Euler(pitch, 0f, 0f),
+            rotationSmoothTime * 50f
+        );
+
+        
+        transform.rotation = Quaternion.Euler(0f, yaw, 0f);
     }
 
-    public void Move(InputAction.CallbackContext value)
+    void FixedUpdate()
     {
-        velocidade = value.ReadValue<Vector2>();
+        Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
+        rb.velocity = move * moveSpeed + new Vector3(0, rb.velocity.y, 0);
     }
 
-    public void MoveCamera(InputAction.CallbackContext value)
+    private void OnDisable()
     {
-        cameraVelocity = value.ReadValue<Vector2>();
+        moveAction.Disable();
+        lookAction.Disable();
     }
 }

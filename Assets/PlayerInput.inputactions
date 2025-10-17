@@ -19,7 +19,7 @@
                     "name": "CameraAxis",
                     "type": "Value",
                     "id": "b7596200-a28c-4473-9862-2416b189f1cd",
-                    "expectedControlType": "Quaternion",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -165,59 +165,15 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "2D Vector",
-                    "id": "cfbf98ae-b067-4da5-a620-c84eebb7d4b2",
-                    "path": "2DVector",
+                    "name": "",
+                    "id": "bd24884a-ef1e-44a1-93a1-0f292a475160",
+                    "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "CameraAxis",
-                    "isComposite": true,
+                    "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "up",
-                    "id": "d3bb3ec6-a7ab-442c-8823-0769c7048634",
-                    "path": "<Keyboard>/i",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "CameraAxis",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "79af3607-0e53-4432-821f-dd8d2a6505b1",
-                    "path": "<Keyboard>/k",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "CameraAxis",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "left",
-                    "id": "b1bbf616-bed6-4dff-a3d5-591bd140c37f",
-                    "path": "<Keyboard>/j",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "CameraAxis",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "right",
-                    "id": "304c3ea3-2d06-4cec-91b3-5f9215903892",
-                    "path": "<Keyboard>/l",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "CameraAxis",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "",

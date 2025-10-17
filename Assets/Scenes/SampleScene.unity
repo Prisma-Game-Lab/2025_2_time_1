@@ -20221,17 +20221,75 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fba137df26437d408bf102392c9e36d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1
-  cameraspeed: {x: 0.3, y: 0.3}
-  m_camera: {fileID: 963194227}
-  actions:
-    m_Name: Actions
+  moveSpeed: 5
+  mouseSensitivity: 30
+  rotationSmoothness: 10
+  playerCamera: {fileID: 963194227}
+  moveAction:
+    m_Name: Move
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 50e731d4-0716-44b0-85f8-efb604a5ce77
+    m_Id: b913c2d3-b112-4d47-a5a6-dd4963656648
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 2D Vector
+      m_Id: f6bf9f19-5494-41ab-b45e-ca90d121d423
+      m_Path: 2DVector
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move
+      m_Flags: 4
+    - m_Name: up
+      m_Id: 8a9801af-9848-4f63-96b3-da8eddf40486
+      m_Path: <Keyboard>/w
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move
+      m_Flags: 8
+    - m_Name: down
+      m_Id: 50c10b33-fe3f-4f19-a97c-2a8f4834e532
+      m_Path: <Keyboard>/s
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move
+      m_Flags: 8
+    - m_Name: left
+      m_Id: 7f1df1fb-e6eb-4c1a-8661-b163890e25dd
+      m_Path: <Keyboard>/a
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move
+      m_Flags: 8
+    - m_Name: right
+      m_Id: 5faee280-1332-4d34-a268-053c370e1208
+      m_Path: <Keyboard>/d
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Move
+      m_Flags: 8
+    m_Flags: 0
+  lookAction:
+    m_Name: Look
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 0c1de446-1a4c-4bcf-9701-3db4fd560899
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 735da254-cfc1-4d9a-a59d-9cd1e8132a9f
+      m_Path: <Mouse>/delta
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Look
+      m_Flags: 0
     m_Flags: 0
 --- !u!114 &2004279161
 MonoBehaviour:
