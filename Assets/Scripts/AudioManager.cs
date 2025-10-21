@@ -6,6 +6,7 @@ public class AudioManager : MonoBehaviour
     public static AudioManager Instance { get; private set; }
 
     [System.Serializable]
+
     public class Sound
     {
         public string name;
@@ -18,6 +19,9 @@ public class AudioManager : MonoBehaviour
 
     public List<Sound> sounds;
 
+    public const string MasterVolumeKey = "MasterVolume";
+    private float masterVolume = 1f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -28,6 +32,8 @@ public class AudioManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        masterVolume = PlayerPrefs.GetFloat(MasterVolumeKey, 1f);
 
         foreach (var s in sounds)
         {
@@ -61,5 +67,20 @@ public class AudioManager : MonoBehaviour
     {
         foreach (var s in sounds)
             s.source.Stop();
+    }
+
+    public void SetMasterVolume(float newVolume)
+    {
+        masterVolume = Mathf.Clamp01(newVolume);
+        PlayerPrefs.SetFloat(MasterVolumeKey, masterVolume);
+        PlayerPrefs.Save();
+
+        foreach (var s in sounds)
+        {
+            if (s.source != null)
+            {
+                s.source.volume = s.volume * masterVolume;
+            }
+        }
     }
 }
