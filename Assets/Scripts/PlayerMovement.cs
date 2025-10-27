@@ -20,6 +20,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] InputAction moveAction;
     [SerializeField] InputAction lookAction;
     [SerializeField] InputAction jumpAction;
+    [SerializeField] InputAction attackAction;
+
+    [Header("Attack Stats")]
+    [SerializeField] int attackDamage = 10;
+    [SerializeField] float attackCooldown = 0.5f;
+    [SerializeField] float attackPhysicsForce = 6f;
+    [SerializeField] float range = 6f;
+    [SerializeField] float duration = 0.2f;
+    [SerializeField] bool hitscan = false;
+    [SerializeField] BoxCollider hitbox;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -27,8 +37,21 @@ public class PlayerMovement : MonoBehaviour
     private float pitch;
     private float yaw;
     private bool isGrounded;
+    private float cooldownTimer = 0;
 
     private float lastJumpAttemptTime = -1f;
+
+    private void attack(bool on)
+    {
+        if (cooldownTimer <= 0) {
+            Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+            if (Physics.Raycast(attackRay, out RaycastHit hit, range))
+            {
+                if (hit.rigidbody != null) hit.rigidbody.velocity = (playerCamera.transform.forward * attackPhysicsForce);
+            }
+            cooldownTimer = attackCooldown;
+        }
+    }
 
     void Start()
     {
@@ -41,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveAction != null) moveAction.Enable();
         if (lookAction != null) lookAction.Enable();
         if (jumpAction != null) jumpAction.Enable();
+        if (attackAction != null) attackAction.Enable();
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -55,9 +79,14 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        
         if (moveAction != null) moveInput = moveAction.ReadValue<Vector2>();
         if (lookAction != null) lookInput = lookAction.ReadValue<Vector2>();
+
+        if (attackAction != null) if (attackAction.IsPressed()) attack(true);
+        if (cooldownTimer > 0)
+        {
+            cooldownTimer -= Time.deltaTime;
+        }
 
         yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
         pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
@@ -104,7 +133,6 @@ public class PlayerMovement : MonoBehaviour
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
 
-       
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (playerCamera != null)
@@ -131,6 +159,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveAction != null) moveAction.Disable();
         if (lookAction != null) lookAction.Disable();
         if (jumpAction != null) jumpAction.Disable();
+        if (attackAction != null) attackAction.Disable();
     }
 
     private void OnDrawGizmosSelected()

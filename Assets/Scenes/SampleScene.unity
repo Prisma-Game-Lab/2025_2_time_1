@@ -21129,6 +21129,30 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+  attackAction:
+    m_Name: Attack
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 35881f28-d236-4a5e-a096-6f1e616676d5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 301be0d7-b6e6-4a53-a57b-50da5ab30f4a
+      m_Path: <Mouse>/leftButton
+      m_Interactions: Press
+      m_Processors: 
+      m_Groups: 
+      m_Action: Attack
+      m_Flags: 0
+    m_Flags: 0
+  attackDamage: 1
+  attackCooldown: 1
+  attackPhysicsForce: 15
+  range: 10
+  duration: 0.4
+  hitscan: 1
+  hitbox: {fileID: 0}
 --- !u!114 &2004279161
 MonoBehaviour:
   m_ObjectHideFlags: 0
