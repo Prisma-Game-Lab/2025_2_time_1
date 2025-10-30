@@ -91,7 +91,6 @@ public class PlayerMovement : MonoBehaviour
 
 
         pitch = Mathf.Clamp(pitch, -80f, 80f);
-        Debug.Log("Pitch after clamp: " + pitch);
 
         if (attackAction != null) if (attackAction.IsPressed()) attack(true);
         if (cooldownTimer > 0)
