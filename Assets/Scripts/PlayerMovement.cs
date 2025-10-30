@@ -4,17 +4,17 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Configurações de Movimento")]
+    [Header("Configuraï¿½ï¿½es de Movimento")]
     [SerializeField] float moveSpeed = 5f;
-    [SerializeField] float mouseSensitivity = 100f;
+    //[SerializeField] float mouseSensitivity = 100f;
     [SerializeField] float rotationSmoothTime = 0.05f;
     [SerializeField] Camera playerCamera;
 
-    [Header("Configurações de Pulo")]
+    [Header("Configuraï¿½ï¿½es de Pulo")]
     [SerializeField] float jumpForce = 6f;
-    [SerializeField] Transform groundCheck;            
+    [SerializeField] Transform groundCheck;
     [SerializeField] float groundDistance = 0.25f;
-    [SerializeField] LayerMask groundMask = ~0;          
+    [SerializeField] LayerMask groundMask = ~0;
 
     [Header("Input Actions")]
     [SerializeField] InputAction moveAction;
@@ -63,9 +63,6 @@ public class PlayerMovement : MonoBehaviour
         if (jumpAction != null) jumpAction.Enable();
         if (attackAction != null) attackAction.Enable();
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
 
@@ -76,18 +73,30 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
+        {
+            moveInput = Vector2.zero;
+            lookInput = Vector2.zero;
+            return;
+        }   
+
         if (moveAction != null) moveInput = moveAction.ReadValue<Vector2>();
         if (lookAction != null) lookInput = lookAction.ReadValue<Vector2>();
+
+        //Pega a sensibilidade do GameManager
+        float currentSensitivity = GameManager.Instance.MouseSensitivity;
+        yaw += lookInput.x * currentSensitivity * Time.deltaTime;
+        pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
+
+
+        pitch = Mathf.Clamp(pitch, -80f, 80f);
 
         if (attackAction != null) if (attackAction.IsPressed()) attack(true);
         if (cooldownTimer > 0)
         {
             cooldownTimer -= Time.deltaTime;
         }
-
-        yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
-        pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
-        pitch = Mathf.Clamp(pitch, -80f, 80f);
 
         if (playerCamera != null)
         {
@@ -100,13 +109,13 @@ public class PlayerMovement : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-       
+
         if (groundCheck != null)
         {
             isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         }
 
-      
+
         bool jumpPressed = false;
 
         if (jumpAction != null && jumpAction.triggered)
@@ -117,7 +126,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
         {
-            Debug.Log($"Jump attempt — isGrounded: {isGrounded} (groundDistance={groundDistance})");
+            Debug.Log($"Jump attempt ï¿½ isGrounded: {isGrounded} (groundDistance={groundDistance})");
             lastJumpAttemptTime = Time.time;
         }
 
@@ -147,6 +156,12 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
+        {
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            return;
+        }
+
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
         rb.velocity = move * moveSpeed + new Vector3(0, rb.velocity.y, 0);
     }
