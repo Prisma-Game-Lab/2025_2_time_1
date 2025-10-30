@@ -61,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveAction != null) moveAction.Enable();
         if (lookAction != null) lookAction.Enable();
         if (jumpAction != null) jumpAction.Enable();
+
         if (attackAction != null) attackAction.Enable();
 
         if (playerCamera == null)
@@ -138,6 +139,9 @@ public class PlayerMovement : MonoBehaviour
 
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
+
+
+
 
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
