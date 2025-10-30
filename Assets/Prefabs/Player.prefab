@@ -164,7 +164,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 8
-  mouseSensitivity: 30
   rotationSmoothTime: 0.05
   playerCamera: {fileID: 6850270795017772791}
   jumpForce: 6
@@ -248,6 +247,27 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+  attackAction:
+    m_Name: Attack
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 0acb620b-43cd-4d7c-81cf-67e2542c6119
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 8227c25d-6765-4097-85f2-d403b41e2a05
+      m_Path: <Mouse>/leftButton
+      m_Interactions: Press
+      m_Processors: 
+      m_Groups: 
+      m_Action: Attack
+      m_Flags: 0
+    m_Flags: 0
+  attackDamage: 10
+  attackCooldown: 0.5
+  attackPhysicsForce: 30
+  range: 8
 --- !u!114 &4775366469624218330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -439,7 +459,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -3033667219593020291, guid: 55f6c2026607d1542aee0115057e0db0, type: 3}
+  - {fileID: 2100000, guid: cb464bbb0d8d1ea41b519018e019c6f5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -489,7 +509,7 @@ Transform:
   m_GameObject: {fileID: 8591750523277323072}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.51, z: 0}
+  m_LocalPosition: {x: 0, y: 1.51, z: 0.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
