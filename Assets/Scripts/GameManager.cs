@@ -19,6 +19,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float defaultSensitivity = 100f;
     public float MouseSensitivity { get; private set; }
 
+    [SerializeField] private GameState myGameState = GameState.Menu;
+
     private void Awake()
     {
         
@@ -36,7 +38,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        ChangeState(GameState.Menu);
+        ChangeState(myGameState);
     }
 
     public void ChangeState(GameState newState)

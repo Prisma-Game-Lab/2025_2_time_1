@@ -5374,6 +5374,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 50533ec4dc96abc489237a5138c91c80, type: 3}
+--- !u!20 &960953018 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 6850270795017772791, guid: 434a08b076a204642aa9587367fc8017, type: 3}
+  m_PrefabInstance: {fileID: 1081345064}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1074781260
 GameObject:
   m_ObjectHideFlags: 0
@@ -20122,21 +20127,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1483568939233030153, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
+    - target: {fileID: 301064394966070688, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1675513952075947073, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1896263684507449174, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 960953018}
     - target: {fileID: 2524345827895577484, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
       propertyPath: m_Name
       value: Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 3646634920068344707, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4647061328771941084, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5362867818419746036, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
       propertyPath: m_Pivot.x
@@ -20217,10 +20222,6 @@ PrefabInstance:
     - target: {fileID: 5362867818419746036, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6920838298300557619, guid: 4fae69c9b50ddf04fae6853909c2148d, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -20995,12 +20996,12 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 705507995}
-  - {fileID: 1186865666}
+  - {fileID: 123603536}
+  - {fileID: 924183225}
   - {fileID: 1850562924}
   - {fileID: 6294000493018102290}
   - {fileID: 1081345064}
   - {fileID: 1735939498}
   - {fileID: 1980002229}
+  - {fileID: 1186865666}
   - {fileID: 2029225709}
-  - {fileID: 123603536}
-  - {fileID: 924183225}

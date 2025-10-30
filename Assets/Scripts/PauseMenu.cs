@@ -75,11 +75,16 @@ public class PauseMenu : MonoBehaviour
 
     void despausaJogo()
     {
+        Debug.Log("Desativando o painel de pause");
+        painelPause.SetActive(false);
+        Debug.Log("Desativando o painel de opções");
+        painelOpcoes.SetActive(false);
+        Debug.Log("Desativando o fundo");
+        fundo.SetActive(false);
         Debug.Log("Despausando o jogo");
         crosshair.SetActive(true);
-        painelPause.SetActive(false);
-        painelOpcoes.SetActive(false);
-        fundo.SetActive(false);
+        Debug.Log("Desativando o painel de pause");
+
     }
 
     void pausaJogo()
