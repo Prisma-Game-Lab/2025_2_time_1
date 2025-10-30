@@ -4,13 +4,13 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Configurações de Movimento")]
+    [Header("Configuraï¿½ï¿½es de Movimento")]
     [SerializeField] float moveSpeed = 5f;
     //[SerializeField] float mouseSensitivity = 100f;
     [SerializeField] float rotationSmoothTime = 0.05f;
     [SerializeField] Camera playerCamera;
 
-    [Header("Configurações de Pulo")]
+    [Header("Configuraï¿½ï¿½es de Pulo")]
     [SerializeField] float jumpForce = 6f;
     [SerializeField] Transform groundCheck;
     [SerializeField] float groundDistance = 0.25f;
@@ -20,6 +20,13 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] InputAction moveAction;
     [SerializeField] InputAction lookAction;
     [SerializeField] InputAction jumpAction;
+    [SerializeField] InputAction attackAction;
+
+    [Header("Attack Stats")]
+    [SerializeField] int attackDamage = 10;
+    [SerializeField] float attackCooldown = 0.5f;
+    [SerializeField] float attackPhysicsForce = 20f;
+    [SerializeField] float range = 8f;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -27,8 +34,21 @@ public class PlayerMovement : MonoBehaviour
     private float pitch;
     private float yaw;
     private bool isGrounded;
+    private float cooldownTimer = 0;
 
     private float lastJumpAttemptTime = -1f;
+
+    private void attack(bool on)
+    {
+        if (cooldownTimer <= 0) {
+            Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+            if (Physics.Raycast(attackRay, out RaycastHit hit, range))
+            {
+                if (hit.rigidbody != null) hit.rigidbody.velocity = (playerCamera.transform.forward * attackPhysicsForce);
+            }
+            cooldownTimer = attackCooldown;
+        }
+    }
 
     void Start()
     {
@@ -41,6 +61,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveAction != null) moveAction.Enable();
         if (lookAction != null) lookAction.Enable();
         if (jumpAction != null) jumpAction.Enable();
+        if (attackAction != null) attackAction.Enable();
 
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
@@ -68,8 +89,11 @@ public class PlayerMovement : MonoBehaviour
         yaw += lookInput.x * currentSensitivity * Time.deltaTime;
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
 
-
-        pitch = Mathf.Clamp(pitch, -80f, 80f);
+        if (attackAction != null) if (attackAction.IsPressed()) attack(true);
+        if (cooldownTimer > 0)
+        {
+            cooldownTimer -= Time.deltaTime;
+        }
 
         if (playerCamera != null)
         {
@@ -99,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
         {
-            Debug.Log($"Jump attempt — isGrounded: {isGrounded} (groundDistance={groundDistance})");
+            Debug.Log($"Jump attempt ï¿½ isGrounded: {isGrounded} (groundDistance={groundDistance})");
             lastJumpAttemptTime = Time.time;
         }
 
@@ -111,7 +135,6 @@ public class PlayerMovement : MonoBehaviour
 
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
-
 
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
@@ -145,6 +168,7 @@ public class PlayerMovement : MonoBehaviour
         if (moveAction != null) moveAction.Disable();
         if (lookAction != null) lookAction.Disable();
         if (jumpAction != null) jumpAction.Disable();
+        if (attackAction != null) attackAction.Disable();
     }
 
     private void OnDrawGizmosSelected()
