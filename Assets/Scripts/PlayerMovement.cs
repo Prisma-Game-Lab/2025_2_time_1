@@ -87,9 +87,9 @@ public class PlayerMovement : MonoBehaviour
         //Pega a sensibilidade do GameManager
         float currentSensitivity = GameManager.Instance.MouseSensitivity;
         yaw += lookInput.x * currentSensitivity * Time.deltaTime;
-        Debug.Log("Pitch before clamp: " + pitch);
-        Debug.Log("Look Input Y: " + lookInput.y);
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
+
+
         pitch = Mathf.Clamp(pitch, -80f, 80f);
         Debug.Log("Pitch after clamp: " + pitch);
 
