@@ -37,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
     private float cooldownTimer = 0;
 
     private float lastJumpAttemptTime = -1f;
+    private float colRadius;
 
     private void attack(bool on)
     {
@@ -70,6 +71,9 @@ public class PlayerMovement : MonoBehaviour
         yaw = transform.eulerAngles.y;
         pitch = playerCamera != null ? playerCamera.transform.localEulerAngles.x : 0f;
         if (pitch > 180f) pitch -= 360f;
+
+        CapsuleCollider col = this.GetComponentInChildren<CapsuleCollider>();
+        colRadius = col.radius;
     }
 
     void Update()
@@ -113,7 +117,35 @@ public class PlayerMovement : MonoBehaviour
 
         if (groundCheck != null)
         {
-            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+            // Essa implementação tem duas opções:
+            // 1. Continuamos checando por uma Layer Ground específicamente e devemos marcar todos os objetos sólidos na cena com ela
+            // 2. Usamos a default Layer como mask, e marcamos os objetos não sólidos e paredes explícitamente
+            //isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+
+            Vector3 checkPos = (groundCheck.position) + new Vector3(0, 0.1f, 0);
+            Vector3 offsetPos = Vector3.zero;
+            Ray groundRay = new Ray(checkPos, -groundCheck.transform.up);
+            isGrounded = Physics.Raycast(groundRay, out RaycastHit hit, groundDistance);
+            if (isGrounded == false) {
+                int points = 4;
+                int theta = 0;
+                int dTheta = 360 / points;
+                for (int i = 0; i < points; i++)
+                {
+                    theta = dTheta * i;
+                    offsetPos.Set(colRadius * Mathf.Cos(theta), 0, colRadius * Mathf.Sin(theta));
+                    groundRay = new Ray(checkPos + offsetPos, -groundCheck.transform.up);
+                    if (Physics.Raycast(groundRay, out hit, groundDistance))
+                    {
+                        isGrounded = true;
+                        break;
+                    }
+                }
+            }
+            
+            
+
         }
 
 
