@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Linq;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Configura��es de Movimento")]
+    [Header("Configurações de Movimento")]
     [SerializeField] float moveSpeed = 5f;
-    //[SerializeField] float mouseSensitivity = 100f;
+    [SerializeField] float sprintMultiplier = 1.8f;
     [SerializeField] float rotationSmoothTime = 0.05f;
     [SerializeField] Camera playerCamera;
 
-    [Header("Configura��es de Pulo")]
+    [Header("Configurações de Pulo")]
     [SerializeField] float jumpForce = 6f;
     [SerializeField] Transform groundCheck;
     [SerializeField] float groundDistance = 0.25f;
@@ -35,16 +36,19 @@ public class PlayerMovement : MonoBehaviour
     private float yaw;
     private bool isGrounded;
     private float cooldownTimer = 0;
-
     private float lastJumpAttemptTime = -1f;
 
-    private void attack(bool on)
+    private HoldableObject heldObject;
+
+    private void Attack(bool on)
     {
-        if (cooldownTimer <= 0) {
+        if (cooldownTimer <= 0)
+        {
             Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
             if (Physics.Raycast(attackRay, out RaycastHit hit, range))
             {
-                if (hit.rigidbody != null) hit.rigidbody.velocity = (playerCamera.transform.forward * attackPhysicsForce);
+                if (hit.rigidbody != null)
+                    hit.rigidbody.velocity = playerCamera.transform.forward * attackPhysicsForce;
             }
             cooldownTimer = attackCooldown;
         }
@@ -58,11 +62,10 @@ public class PlayerMovement : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         rb.useGravity = true;
 
-        if (moveAction != null) moveAction.Enable();
-        if (lookAction != null) lookAction.Enable();
-        if (jumpAction != null) jumpAction.Enable();
-
-        if (attackAction != null) attackAction.Enable();
+        moveAction?.Enable();
+        lookAction?.Enable();
+        jumpAction?.Enable();
+        attackAction?.Enable();
 
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
@@ -74,30 +77,23 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
             moveInput = Vector2.zero;
             lookInput = Vector2.zero;
             return;
-        }   
+        }
 
         if (moveAction != null) moveInput = moveAction.ReadValue<Vector2>();
         if (lookAction != null) lookInput = lookAction.ReadValue<Vector2>();
 
-        //Pega a sensibilidade do GameManager
         float currentSensitivity = GameManager.Instance.MouseSensitivity;
         yaw += lookInput.x * currentSensitivity * Time.deltaTime;
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
-
-
         pitch = Mathf.Clamp(pitch, -80f, 80f);
 
-        if (attackAction != null) if (attackAction.IsPressed()) attack(true);
-        if (cooldownTimer > 0)
-        {
-            cooldownTimer -= Time.deltaTime;
-        }
+        if (attackAction != null && attackAction.IsPressed()) Attack(true);
+        if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
 
         if (playerCamera != null)
         {
@@ -110,50 +106,68 @@ public class PlayerMovement : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-
         if (groundCheck != null)
-        {
             isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
-        }
 
-
-        bool jumpPressed = false;
-
-        if (jumpAction != null && jumpAction.triggered)
-            jumpPressed = true;
-
-        if (!jumpPressed && Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
-            jumpPressed = true;
+        bool jumpPressed = (jumpAction != null && jumpAction.triggered) ||
+                           (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame);
 
         if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
-        {
-            Debug.Log($"Jump attempt � isGrounded: {isGrounded} (groundDistance={groundDistance})");
             lastJumpAttemptTime = Time.time;
-        }
 
         if (jumpPressed && isGrounded)
         {
             Vector3 v = rb.velocity;
             v.y = 0f;
             rb.velocity = v;
-
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
 
-
-
-
+        // --- Interação com E ---
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            if (playerCamera != null)
+            if (playerCamera == null)
+                return;
+
+            // Tentando pegar algo
+            if (heldObject == null)
             {
-                Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, 3f))
-                {
-                    ResettableObject resettable = hit.collider.GetComponent<ResettableObject>();
-                    if (resettable != null)
-                        resettable.ResetObject();
-                }
+                Vector3 rayDirection = playerCamera.transform.forward;
+                Vector3 rayOrigin = playerCamera.transform.position + rayDirection * 2f + Vector3.up * 0.5f;
+                rayOrigin += rayDirection * 1.5f;
+
+                // Faz Raycast
+                RaycastHit[] hits = Physics.RaycastAll(rayOrigin, rayDirection, 3f, ~0, QueryTriggerInteraction.Ignore);
+                if (hits == null || hits.Length == 0)
+                    return;
+
+                // Pega o primeiro hit que não é do player
+                RaycastHit? validHit = hits
+                    .Where(h => h.collider != null && h.collider.transform.root != transform)
+                    .OrderBy(h => h.distance)
+                    .FirstOrDefault();
+
+                if (!validHit.HasValue || validHit.Value.collider == null)
+                    return;
+
+                RaycastHit hit = validHit.Value;
+
+                // Pega o HoldableObject (direto ou no pai)
+                HoldableObject holdable = hit.collider.GetComponent<HoldableObject>();
+                if (holdable == null)
+                    holdable = hit.collider.GetComponentInParent<HoldableObject>();
+
+                if (holdable == null)
+                    return;
+
+                holdable.PickUp(playerCamera);
+                heldObject = holdable;
+            }
+            // Soltando o objeto
+            else
+            {
+                heldObject.Drop();
+                heldObject = null;
             }
         }
     }
@@ -166,16 +180,20 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        float currentSpeed = moveSpeed;
+        if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
+            currentSpeed *= sprintMultiplier;
+
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
-        rb.velocity = move * moveSpeed + new Vector3(0, rb.velocity.y, 0);
+        rb.velocity = move * currentSpeed + new Vector3(0, rb.velocity.y, 0);
     }
 
     private void OnDisable()
     {
-        if (moveAction != null) moveAction.Disable();
-        if (lookAction != null) lookAction.Disable();
-        if (jumpAction != null) jumpAction.Disable();
-        if (attackAction != null) attackAction.Disable();
+        moveAction?.Disable();
+        lookAction?.Disable();
+        jumpAction?.Disable();
+        attackAction?.Disable();
     }
 
     private void OnDrawGizmosSelected()
