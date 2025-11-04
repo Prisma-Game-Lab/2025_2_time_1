@@ -37,6 +37,7 @@ public class PlayerMovement : MonoBehaviour
     private bool isGrounded;
     private float cooldownTimer = 0;
     private float lastJumpAttemptTime = -1f;
+    private float colRadius;
 
     private HoldableObject heldObject;
 
@@ -73,6 +74,12 @@ public class PlayerMovement : MonoBehaviour
         yaw = transform.eulerAngles.y;
         pitch = playerCamera != null ? playerCamera.transform.localEulerAngles.x : 0f;
         if (pitch > 180f) pitch -= 360f;
+
+        CapsuleCollider col = GetComponentInChildren<CapsuleCollider>();
+        if (col != null)
+            colRadius = col.radius;
+        else
+            colRadius = 0.5f;
     }
 
     void Update()
@@ -106,8 +113,26 @@ public class PlayerMovement : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
+        // Ground check aprimorado com raycasts em círculo
         if (groundCheck != null)
-            isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        {
+            Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
+            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance, groundMask);
+            if (!isGrounded)
+            {
+                int points = 4;
+                for (int i = 0; i < points; i++)
+                {
+                    float angle = (360f / points) * i * Mathf.Deg2Rad;
+                    Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * colRadius;
+                    if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance, groundMask))
+                    {
+                        isGrounded = true;
+                        break;
+                    }
+                }
+            }
+        }
 
         bool jumpPressed = (jumpAction != null && jumpAction.triggered) ||
                            (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame);
@@ -129,41 +154,26 @@ public class PlayerMovement : MonoBehaviour
             if (playerCamera == null)
                 return;
 
-            // Tentando pegar algo
             if (heldObject == null)
             {
+                Vector3 rayOrigin = playerCamera.transform.position;
                 Vector3 rayDirection = playerCamera.transform.forward;
-                Vector3 rayOrigin = playerCamera.transform.position + rayDirection * 2f + Vector3.up * 0.5f;
-                rayOrigin += rayDirection * 1.5f;
 
-                // Faz Raycast
-                RaycastHit[] hits = Physics.RaycastAll(rayOrigin, rayDirection, 3f, ~0, QueryTriggerInteraction.Ignore);
-                if (hits == null || hits.Length == 0)
-                    return;
+                if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, 3f, ~0, QueryTriggerInteraction.Ignore))
+                {
+                    if (hit.collider != null && hit.collider.transform.root != transform)
+                    {
+                        HoldableObject holdable = hit.collider.GetComponent<HoldableObject>() ??
+                                                  hit.collider.GetComponentInParent<HoldableObject>();
 
-                // Pega o primeiro hit que não é do player
-                RaycastHit? validHit = hits
-                    .Where(h => h.collider != null && h.collider.transform.root != transform)
-                    .OrderBy(h => h.distance)
-                    .FirstOrDefault();
-
-                if (!validHit.HasValue || validHit.Value.collider == null)
-                    return;
-
-                RaycastHit hit = validHit.Value;
-
-                // Pega o HoldableObject (direto ou no pai)
-                HoldableObject holdable = hit.collider.GetComponent<HoldableObject>();
-                if (holdable == null)
-                    holdable = hit.collider.GetComponentInParent<HoldableObject>();
-
-                if (holdable == null)
-                    return;
-
-                holdable.PickUp(playerCamera);
-                heldObject = holdable;
+                        if (holdable != null)
+                        {
+                            holdable.PickUp(playerCamera);
+                            heldObject = holdable;
+                        }
+                    }
+                }
             }
-            // Soltando o objeto
             else
             {
                 heldObject.Drop();
