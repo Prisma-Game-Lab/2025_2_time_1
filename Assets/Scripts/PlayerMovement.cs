@@ -151,29 +151,43 @@ public class PlayerMovement : MonoBehaviour
         // --- Interação com E ---
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            if (playerCamera == null)
-                return;
+            if (playerCamera == null) return;
 
+            // Tentando pegar algo
             if (heldObject == null)
             {
-                Vector3 rayOrigin = playerCamera.transform.position;
                 Vector3 rayDirection = playerCamera.transform.forward;
+                Vector3 rayOrigin = playerCamera.transform.position + rayDirection * 2f + Vector3.up * 0.5f;
+                rayOrigin += rayDirection * 1.5f;
 
-                if (Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, 3f, ~0, QueryTriggerInteraction.Ignore))
-                {
-                    if (hit.collider != null && hit.collider.transform.root != transform)
-                    {
-                        HoldableObject holdable = hit.collider.GetComponent<HoldableObject>() ??
-                                                  hit.collider.GetComponentInParent<HoldableObject>();
+                // Faz Raycast
+                RaycastHit[] hits = Physics.RaycastAll(rayOrigin, rayDirection, 3f, ~0, QueryTriggerInteraction.Ignore);
+                if (hits == null || hits.Length == 0)
+                    return;
 
-                        if (holdable != null)
-                        {
-                            holdable.PickUp(playerCamera);
-                            heldObject = holdable;
-                        }
-                    }
-                }
+                // Pega o primeiro hit que não é do player
+                RaycastHit? validHit = hits
+                    .Where(h => h.collider != null && h.collider.transform.root != transform)
+                    .OrderBy(h => h.distance)
+                    .FirstOrDefault();
+
+                if (!validHit.HasValue || validHit.Value.collider == null)
+                    return;
+
+                RaycastHit hit = validHit.Value;
+
+                // Pega o HoldableObject (direto ou no pai)
+                HoldableObject holdable = hit.collider.GetComponent<HoldableObject>();
+                if (holdable == null)
+                    holdable = hit.collider.GetComponentInParent<HoldableObject>();
+
+                if (holdable == null)
+                    return;
+
+                holdable.PickUp(playerCamera);
+                heldObject = holdable;
             }
+            // Soltando o objeto
             else
             {
                 heldObject.Drop();
