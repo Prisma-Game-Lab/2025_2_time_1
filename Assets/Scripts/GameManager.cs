@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour
     public void SetFieldOfView(float newFOV)
     {
         FieldOfView = newFOV;
-        //myCamera.fieldOfView = newFOV;
+        myCamera.fieldOfView = newFOV;
         PlayerPrefs.SetFloat(FOV_KEY, newFOV);
         PlayerPrefs.Save();
 
