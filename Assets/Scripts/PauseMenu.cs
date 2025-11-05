@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class PauseMenu : MonoBehaviour
 {
@@ -11,9 +12,13 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject painelOpcoes;
     [SerializeField] private GameObject crosshair;
     [SerializeField] private GameObject fundo;
+    [SerializeField] private GameObject temCerteza;
 
+    [Header("Configurações de UI")]
     [SerializeField] private Slider sensitivitySlider;
+    [SerializeField] private TMP_InputField sensitivityInputField;
     [SerializeField] private Slider volumeSlider;
+    [SerializeField] private TMP_InputField volumeInputField;
 
     void Start()
     {
@@ -24,35 +29,103 @@ public class PauseMenu : MonoBehaviour
 
         despausaJogo();
 
-        if (sensitivitySlider != null)
+        // --- Configuração de Sensibilidade ---
+        if (sensitivitySlider != null && sensitivityInputField != null)
         {
-            sensitivitySlider.value = GameManager.Instance.MouseSensitivity;
-            sensitivitySlider.onValueChanged.AddListener(OnSensitivityChanged);
+            // 1. Carrega o valor do GameManager
+            float currentSens = GameManager.Instance.MouseSensitivity;
+
+            // 2. Define o Slider e o InputField
+            sensitivitySlider.value = currentSens;
+            sensitivityInputField.text = currentSens.ToString("F2");
+
+            // 3. Adiciona Listeners
+            sensitivitySlider.onValueChanged.AddListener(OnSensitivitySliderChanged);
+            sensitivityInputField.onEndEdit.AddListener(OnSensitivityInputChanged);
         }
 
-        if (volumeSlider != null)
+        // --- Configuração de Volume ---
+        if (volumeSlider != null && volumeInputField != null)
         {
-            volumeSlider.value = PlayerPrefs.GetFloat(AudioManager.MasterVolumeKey, 1f);
-            volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+            // 1. Carrega o valor do PlayerPrefs
+            float currentVol = PlayerPrefs.GetFloat(AudioManager.MasterVolumeKey, 1f);
+
+            // 2. Define o Slider (0-1) e o InputField (0-100)
+            volumeSlider.value = currentVol;
+            volumeInputField.text = (currentVol * 100f).ToString("F0"); // Ex: "100"
+
+            // 3. Adiciona Listeners
+            volumeSlider.onValueChanged.AddListener(OnVolumeSliderChanged);
+            volumeInputField.onEndEdit.AddListener(OnVolumeInputChanged);
         }
     }
 
-    public void OnSensitivityChanged(float newValue)
+    // --- FUNÇÕES DO SLIDER DE SENSIBILIDADE ---
+    // (Renomeei de OnSensitivityChanged para ser mais claro)
+    public void OnSensitivitySliderChanged(float newValue)
     {
+        // 1. Atualiza o GameManager (que salva no PlayerPrefs)
         if (GameManager.Instance != null)
         {
             GameManager.Instance.SetSensitivity(newValue);
         }
 
+        // 2. Atualiza o texto do InputField
+        sensitivityInputField.text = newValue.ToString("F2");
     }
 
-    public void OnVolumeChanged(float newValue)
+    public void OnSensitivityInputChanged(string newText)
     {
+        if (float.TryParse(newText, out float newValue))
+        {
+            // 1. Valida (Clamp) o valor para o range do slider
+            newValue = Mathf.Clamp(newValue, sensitivitySlider.minValue, sensitivitySlider.maxValue);
+
+            // 2. Define o valor do slider
+            // Isso vai disparar o OnSensitivitySliderChanged automaticamente,
+            // que fará o resto (salvar no GameManager e formatar o texto)
+            sensitivitySlider.value = newValue;
+        }
+        else
+        {
+            // Se o texto for inválido (ex: "abc"), reverte para o valor atual
+            sensitivityInputField.text = sensitivitySlider.value.ToString("F2");
+        }
+    }
+
+    // --- FUNÇÕES DO SLIDER DE VOLUME ---
+    // (Renomeei de OnVolumeChanged para ser mais claro)
+    public void OnVolumeSliderChanged(float newValue) // newValue é de 0.0 a 1.0
+    {
+        // 1. Atualiza o AudioManager (que salva no PlayerPrefs)
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.SetMasterVolume(newValue);
         }
+
+        // 2. Atualiza o texto do InputField (mostrando 0-100)
+        volumeInputField.text = (newValue * 100f).ToString("F0");
     }
+
+    public void OnVolumeInputChanged(string newText)
+    {
+        if (float.TryParse(newText, out float newValue)) // newValue é de 0 a 100
+        {
+            // 1. Valida (Clamp) o valor para 0-100
+            newValue = Mathf.Clamp(newValue, 0f, 100f);
+
+            // 2. Converte (para 0-1) e define o valor do slider
+            // Isso vai disparar o OnVolumeSliderChanged automaticamente
+            volumeSlider.value = newValue / 100f;
+        }
+        else
+        {
+            // Se o texto for inválido, reverte
+            volumeInputField.text = (volumeSlider.value * 100f).ToString("F0");
+        }
+    }
+
+    // --- O RESTO DO SEU SCRIPT ---
 
     void Update()
     {
@@ -79,6 +152,7 @@ public class PauseMenu : MonoBehaviour
         painelPause.SetActive(false);
         painelOpcoes.SetActive(false);
         fundo.SetActive(false);
+        temCerteza.SetActive(false);
     }
 
     void pausaJogo()
@@ -103,24 +177,20 @@ public class PauseMenu : MonoBehaviour
         Application.Quit();
     }
 
-    public void CarregarMenu()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ChangeState(GameManager.GameState.Menu);
-        }
-        SceneManager.LoadScene(cenaMenu);
-    }
-
     public void AbriOpcoes()
     {
-        if (sensitivitySlider != null)
+        // ATUALIZADO: Garante que os InputFields também sejam atualizados
+        if (sensitivitySlider != null && sensitivityInputField != null)
         {
-            sensitivitySlider.value = GameManager.Instance.MouseSensitivity;
+            float currentSens = GameManager.Instance.MouseSensitivity;
+            sensitivitySlider.value = currentSens;
+            sensitivityInputField.text = currentSens.ToString("F2");
         }
-        if (volumeSlider != null)
+        if (volumeSlider != null && volumeInputField != null)
         {
-            volumeSlider.value = PlayerPrefs.GetFloat(AudioManager.MasterVolumeKey, 1f);
+            float currentVol = PlayerPrefs.GetFloat(AudioManager.MasterVolumeKey, 1f);
+            volumeSlider.value = currentVol;
+            volumeInputField.text = (currentVol * 100f).ToString("F0");
         }
 
         painelPause.SetActive(false);
@@ -131,5 +201,26 @@ public class PauseMenu : MonoBehaviour
     {
         painelPause.SetActive(true);
         painelOpcoes.SetActive(false);
+    }
+
+    public void CarregarMenu()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ChangeState(GameManager.GameState.Menu);
+        }
+        SceneManager.LoadScene(cenaMenu);
+    }
+
+    public void IrMenuPrincripal()
+    {
+        painelPause.SetActive(false);
+        temCerteza.SetActive(true);
+    }
+
+    public void NaoVoltarMenuPrincipal()
+    {
+        painelPause.SetActive(true);
+        temCerteza.SetActive(false);
     }
 }

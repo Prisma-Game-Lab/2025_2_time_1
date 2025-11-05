@@ -16,11 +16,8 @@ public class CrosshairController : MonoBehaviour
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
         {
-            // muda de cor se mira num objeto com componente ResettableObject
-            if (hit.collider.GetComponent<ResettableObject>() != null)
-                crosshair.color = hitColor;
-            else
-                crosshair.color = normalColor;
+            HoldableObject holdable = hit.collider.GetComponentInParent<HoldableObject>();
+            crosshair.color = holdable != null ? hitColor : normalColor;
         }
         else
         {
