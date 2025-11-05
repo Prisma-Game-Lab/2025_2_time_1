@@ -117,7 +117,7 @@ public class PlayerMovement : MonoBehaviour
         if (groundCheck != null)
         {
             Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
-            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance, groundMask);
+            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance);
             if (!isGrounded)
             {
                 int points = 4;
@@ -125,7 +125,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     float angle = (360f / points) * i * Mathf.Deg2Rad;
                     Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * colRadius;
-                    if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance, groundMask))
+                    if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance))
                     {
                         isGrounded = true;
                         break;
