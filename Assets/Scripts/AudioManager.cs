@@ -42,6 +42,7 @@ public class AudioManager : MonoBehaviour
             s.source.volume = s.volume * masterVolume;
             s.source.pitch = s.pitch;
             s.source.loop = s.loop;
+            s.source.playOnAwake = false;
         }
     }
 
@@ -54,6 +55,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
         s.source.Play();
+        Debug.Log($"Tocando som: {name}");
     }
 
     public void Stop(string name)

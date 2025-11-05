@@ -25,9 +25,23 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float defaultFOV = 40f;
     public float FieldOfView { get; private set; }
 
+    // Variaveis do AudioManager
+    private AudioManager audioManager;
+    [SerializeField] private string musicToPlay = "FunnyMusic";
+
     private void Awake()
     {
         myCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
+        if (audioManager != null)
+        {   
+            Debug.Log("Tocando música de fundo...");
+            audioManager.Play(musicToPlay);
+        }
+        else
+        {
+            Debug.Log("AudioManager não encontrado na cena!");
+        }
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
