@@ -232,6 +232,11 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
         rb.velocity = move * currentSpeed + new Vector3(0, rb.velocity.y, 0);
+
+        
+        float extraGravityMultiplier = 2f; // aumenta conforme quiser
+        rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
+
     }
 
     private void OnDisable()
