@@ -6,7 +6,14 @@ public class HoldableObject : MonoBehaviour
     private Rigidbody rb;
     private Transform holdParent;
     private bool isHeld = false;
+
+    [Header("Configurações de Pegar")]
     public float holdDistance = 2f;
+    public float followSpeed = 15f;
+
+    [Header("Ajustes Visuais")]
+    public Vector3 holdOffset = Vector3.zero;        // Ajuste de posição
+    public Vector3 rotationOffset = Vector3.zero;    // Novo: ajuste de rotação (em graus)
 
     void Awake()
     {
@@ -16,12 +23,7 @@ public class HoldableObject : MonoBehaviour
     public void PickUp(Camera cam)
     {
         if (cam == null) return;
-
-        if (rb == null)
-        {
-            rb = GetComponent<Rigidbody>();
-            if (rb == null) return;
-        }
+        if (rb == null) rb = GetComponent<Rigidbody>();
 
         isHeld = true;
         rb.useGravity = false;
@@ -31,11 +33,7 @@ public class HoldableObject : MonoBehaviour
 
     public void Drop()
     {
-        if (rb == null)
-        {
-            rb = GetComponent<Rigidbody>();
-            if (rb == null) return;
-        }
+        if (rb == null) rb = GetComponent<Rigidbody>();
 
         isHeld = false;
         rb.useGravity = true;
@@ -47,8 +45,15 @@ public class HoldableObject : MonoBehaviour
     {
         if (isHeld && holdParent != null)
         {
-            Vector3 targetPos = holdParent.position + holdParent.forward * holdDistance;
-            rb.MovePosition(Vector3.Lerp(rb.position, targetPos, Time.fixedDeltaTime * 10f));
+            // Posição alvo com offset
+            Vector3 targetPos = holdParent.position + holdParent.forward * holdDistance
+                                + holdParent.TransformDirection(holdOffset);
+
+            rb.MovePosition(Vector3.Lerp(rb.position, targetPos, Time.fixedDeltaTime * followSpeed));
+
+            // Rotação alvo com offset
+            Quaternion targetRot = holdParent.rotation * Quaternion.Euler(rotationOffset);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * followSpeed));
         }
     }
 }

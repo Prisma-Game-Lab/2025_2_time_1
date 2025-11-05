@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Linq;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -27,6 +28,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] int attackDamage = 10;
     [SerializeField] float attackCooldown = 0.5f;
     [SerializeField] float attackPhysicsForce = 20f;
+    [SerializeField] float attackDelayBeforeThrow = 0.15f; // tempo antes de lançar
     [SerializeField] float range = 8f;
 
     private Rigidbody rb;
@@ -40,22 +42,9 @@ public class PlayerMovement : MonoBehaviour
     private float colRadius;
 
     private HoldableObject heldObject;
+    private bool isAttacking = false;
 
-    private void Attack(bool on)
-    {
-        if (cooldownTimer <= 0)
-        {
-            Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-            if (Physics.Raycast(attackRay, out RaycastHit hit, range))
-            {
-                if (hit.rigidbody != null)
-                    hit.rigidbody.velocity = playerCamera.transform.forward * attackPhysicsForce;
-            }
-            cooldownTimer = attackCooldown;
-        }
-    }
-
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -76,13 +65,10 @@ public class PlayerMovement : MonoBehaviour
         if (pitch > 180f) pitch -= 360f;
 
         CapsuleCollider col = GetComponentInChildren<CapsuleCollider>();
-        if (col != null)
-            colRadius = col.radius;
-        else
-            colRadius = 0.5f;
+        colRadius = col != null ? col.radius : 0.5f;
     }
 
-    void Update()
+    private void Update()
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
@@ -99,8 +85,12 @@ public class PlayerMovement : MonoBehaviour
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
         pitch = Mathf.Clamp(pitch, -80f, 80f);
 
-        if (attackAction != null && attackAction.IsPressed()) Attack(true);
-        if (cooldownTimer > 0) cooldownTimer -= Time.deltaTime;
+        // ataque
+        if (!isAttacking && attackAction != null && attackAction.triggered)
+            StartCoroutine(HandleAttack());
+
+        if (cooldownTimer > 0)
+            cooldownTimer -= Time.deltaTime;
 
         if (playerCamera != null)
         {
@@ -113,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-        // Ground check aprimorado com raycasts em círculo
+        // Ground check
         if (groundCheck != null)
         {
             Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
@@ -153,19 +143,15 @@ public class PlayerMovement : MonoBehaviour
         {
             if (playerCamera == null) return;
 
-            // Tentando pegar algo
             if (heldObject == null)
             {
                 Vector3 rayDirection = playerCamera.transform.forward;
                 Vector3 rayOrigin = playerCamera.transform.position + rayDirection * 2f + Vector3.up * 0.5f;
                 rayOrigin += rayDirection * 1.5f;
 
-                // Faz Raycast
                 RaycastHit[] hits = Physics.RaycastAll(rayOrigin, rayDirection, 3f, ~0, QueryTriggerInteraction.Ignore);
-                if (hits == null || hits.Length == 0)
-                    return;
+                if (hits == null || hits.Length == 0) return;
 
-                // Pega o primeiro hit que não é do player
                 RaycastHit? validHit = hits
                     .Where(h => h.collider != null && h.collider.transform.root != transform)
                     .OrderBy(h => h.distance)
@@ -176,18 +162,14 @@ public class PlayerMovement : MonoBehaviour
 
                 RaycastHit hit = validHit.Value;
 
-                // Pega o HoldableObject (direto ou no pai)
-                HoldableObject holdable = hit.collider.GetComponent<HoldableObject>();
-                if (holdable == null)
-                    holdable = hit.collider.GetComponentInParent<HoldableObject>();
+                HoldableObject holdable = hit.collider.GetComponent<HoldableObject>() ??
+                                          hit.collider.GetComponentInParent<HoldableObject>();
 
-                if (holdable == null)
-                    return;
+                if (holdable == null) return;
 
                 holdable.PickUp(playerCamera);
                 heldObject = holdable;
             }
-            // Soltando o objeto
             else
             {
                 heldObject.Drop();
@@ -196,7 +178,47 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
+    private IEnumerator HandleAttack()
+    {
+        if (cooldownTimer > 0) yield break;
+
+        isAttacking = true;
+
+        // mini delay simulando o "puxar o braço"
+        yield return new WaitForSeconds(attackDelayBeforeThrow);
+
+        // Se estiver segurando algo, arremessa
+        if (heldObject != null)
+        {
+            Rigidbody thrownRb = heldObject.GetComponent<Rigidbody>();
+            heldObject.Drop();
+
+            if (thrownRb != null)
+            {
+                // força pra frente
+                thrownRb.AddForce(playerCamera.transform.forward * attackPhysicsForce, ForceMode.VelocityChange);
+                // rotação aleatória pra efeito natural
+                thrownRb.AddTorque(Random.insideUnitSphere * 5f, ForceMode.Impulse);
+            }
+
+            heldObject = null;
+        }
+        else
+        {
+            // ataque normal com raycast
+            Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+            if (Physics.Raycast(attackRay, out RaycastHit hit, range))
+            {
+                if (hit.rigidbody != null)
+                    hit.rigidbody.velocity = playerCamera.transform.forward * attackPhysicsForce;
+            }
+        }
+
+        cooldownTimer = attackCooldown;
+        isAttacking = false;
+    }
+
+    private void FixedUpdate()
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
