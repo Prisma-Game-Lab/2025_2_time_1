@@ -14,11 +14,13 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject fundo;
     [SerializeField] private GameObject temCerteza;
 
-    [Header("Configurações de UI")]
+    [Header("Configuraï¿½ï¿½es de UI")]
     [SerializeField] private Slider sensitivitySlider;
     [SerializeField] private TMP_InputField sensitivityInputField;
     [SerializeField] private Slider volumeSlider;
     [SerializeField] private TMP_InputField volumeInputField;
+    [SerializeField] private Slider fovSlider;
+    [SerializeField] private TMP_InputField fovInputField;
 
     void Start()
     {
@@ -29,7 +31,7 @@ public class PauseMenu : MonoBehaviour
 
         despausaJogo();
 
-        // --- Configuração de Sensibilidade ---
+        // --- Configuraï¿½ï¿½o de Sensibilidade ---
         if (sensitivitySlider != null && sensitivityInputField != null)
         {
             // 1. Carrega o valor do GameManager
@@ -44,7 +46,7 @@ public class PauseMenu : MonoBehaviour
             sensitivityInputField.onEndEdit.AddListener(OnSensitivityInputChanged);
         }
 
-        // --- Configuração de Volume ---
+        // --- Configuraï¿½ï¿½o de Volume ---
         if (volumeSlider != null && volumeInputField != null)
         {
             // 1. Carrega o valor do PlayerPrefs
@@ -58,9 +60,23 @@ public class PauseMenu : MonoBehaviour
             volumeSlider.onValueChanged.AddListener(OnVolumeSliderChanged);
             volumeInputField.onEndEdit.AddListener(OnVolumeInputChanged);
         }
+        // --- Configuraï¿½ï¿½o de FOV ---
+        if (fovSlider != null && fovInputField != null)
+        {
+            // 1. Carrega o valor do PlayerPrefs
+            float currentFOV = PlayerPrefs.GetFloat(GameManager.FOV_KEY, 40f);
+
+            // 2. Define o Slider (0-1) e o InputField (0-100)
+            fovSlider.value = currentFOV;
+            fovInputField.text = (currentFOV * 100f).ToString("F0"); // Ex: "100"
+
+            // 3. Adiciona Listeners
+            fovSlider.onValueChanged.AddListener(OnFOVSliderChanged);
+            fovInputField.onEndEdit.AddListener(OnFOVInputChanged);
+        }
     }
 
-    // --- FUNÇÕES DO SLIDER DE SENSIBILIDADE ---
+    // --- FUNï¿½ï¿½ES DO SLIDER DE SENSIBILIDADE ---
     // (Renomeei de OnSensitivityChanged para ser mais claro)
     public void OnSensitivitySliderChanged(float newValue)
     {
@@ -83,19 +99,19 @@ public class PauseMenu : MonoBehaviour
 
             // 2. Define o valor do slider
             // Isso vai disparar o OnSensitivitySliderChanged automaticamente,
-            // que fará o resto (salvar no GameManager e formatar o texto)
+            // que farï¿½ o resto (salvar no GameManager e formatar o texto)
             sensitivitySlider.value = newValue;
         }
         else
         {
-            // Se o texto for inválido (ex: "abc"), reverte para o valor atual
+            // Se o texto for invï¿½lido (ex: "abc"), reverte para o valor atual
             sensitivityInputField.text = sensitivitySlider.value.ToString("F2");
         }
     }
 
-    // --- FUNÇÕES DO SLIDER DE VOLUME ---
+    // --- FUNï¿½ï¿½ES DO SLIDER DE VOLUME ---
     // (Renomeei de OnVolumeChanged para ser mais claro)
-    public void OnVolumeSliderChanged(float newValue) // newValue é de 0.0 a 1.0
+    public void OnVolumeSliderChanged(float newValue) // newValue ï¿½ de 0.0 a 1.0
     {
         // 1. Atualiza o AudioManager (que salva no PlayerPrefs)
         if (AudioManager.Instance != null)
@@ -109,7 +125,7 @@ public class PauseMenu : MonoBehaviour
 
     public void OnVolumeInputChanged(string newText)
     {
-        if (float.TryParse(newText, out float newValue)) // newValue é de 0 a 100
+        if (float.TryParse(newText, out float newValue)) // newValue ï¿½ de 0 a 100
         {
             // 1. Valida (Clamp) o valor para 0-100
             newValue = Mathf.Clamp(newValue, 0f, 100f);
@@ -120,8 +136,38 @@ public class PauseMenu : MonoBehaviour
         }
         else
         {
-            // Se o texto for inválido, reverte
+            // Se o texto for invï¿½lido, reverte
             volumeInputField.text = (volumeSlider.value * 100f).ToString("F0");
+        }
+    }
+
+    public void OnFOVSliderChanged(float newValue) // newValue ï¿½ de 0.0 a 1.0
+    {
+        // 1. Atualiza o GameManager (que salva no PlayerPrefs)
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetFieldOfView(newValue);
+        }
+
+        // 2. Atualiza o texto do InputField (mostrando 0-100)
+        fovInputField.text = (fovSlider.value * 100f).ToString("F0");
+    }
+
+    public void OnFOVInputChanged(string newText)
+    {
+        if (float.TryParse(newText, out float newValue)) // newValue ï¿½ de 0 a 100
+        {
+            // 1. Valida (Clamp) o valor para 0-100
+            newValue = Mathf.Clamp(newValue, 0f, 100f);
+
+            // 2. Converte (para 0-1) e define o valor do slider
+            // Isso vai disparar o OnFOVSliderChanged automaticamente
+            fovSlider.value = newValue / 100f;
+        }
+        else
+        {
+            // Se o texto for invï¿½lido, reverte
+            fovInputField.text = (fovSlider.value * 100f).ToString("F0");
         }
     }
 
@@ -179,7 +225,7 @@ public class PauseMenu : MonoBehaviour
 
     public void AbriOpcoes()
     {
-        // ATUALIZADO: Garante que os InputFields também sejam atualizados
+        // ATUALIZADO: Garante que os InputFields tambï¿½m sejam atualizados
         if (sensitivitySlider != null && sensitivityInputField != null)
         {
             float currentSens = GameManager.Instance.MouseSensitivity;
