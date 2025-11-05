@@ -1052,6 +1052,17 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!114 &405200017 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4521692904879934358, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+  m_PrefabInstance: {fileID: 3881773807017110240}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &414175630
 Mesh:
   m_ObjectHideFlags: 0
@@ -1465,6 +1476,17 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &711945080 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1188657957257118654, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+  m_PrefabInstance: {fileID: 3881773807017110240}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &715846278
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1552,6 +1574,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSensitivity: 30
+  defaultFOV: 60
+  musicToPlay: FunnyMusic
 --- !u!4 &723590001
 Transform:
   m_ObjectHideFlags: 0
@@ -3797,6 +3821,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7330167223191813097, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7330167223191813097, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8777968857665804983, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_Name
       value: CanvasPauseMenu
@@ -3920,6 +3952,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1415057690}
     - target: {fileID: 5515521056087136465, guid: 7860e3a0ae0cf5849be459fd1eb2d402, type: 3}
+      propertyPath: fovSlider
+      value: 
+      objectReference: {fileID: 405200017}
+    - target: {fileID: 5515521056087136465, guid: 7860e3a0ae0cf5849be459fd1eb2d402, type: 3}
       propertyPath: temCerteza
       value: 
       objectReference: {fileID: 310592147}
@@ -3935,6 +3971,10 @@ PrefabInstance:
       propertyPath: volumeSlider
       value: 
       objectReference: {fileID: 189980757}
+    - target: {fileID: 5515521056087136465, guid: 7860e3a0ae0cf5849be459fd1eb2d402, type: 3}
+      propertyPath: fovInputField
+      value: 
+      objectReference: {fileID: 711945080}
     - target: {fileID: 5515521056087136465, guid: 7860e3a0ae0cf5849be459fd1eb2d402, type: 3}
       propertyPath: volumeInputField
       value: 
@@ -4003,6 +4043,50 @@ PrefabInstance:
     - target: {fileID: 1618082580813621810, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[0].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 0a69186909a80a844bf51a8e7b16aca1, type: 3}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[0].loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[0].name
+      value: FunnyMusic
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[1].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 25064313726ea3e4aa79d5ea7e851e3b, type: 3}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[1].loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[1].name
+      value: Fase01
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[0].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[1].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[0].volume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[1].volume
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7222861314885053040, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: m_Name
