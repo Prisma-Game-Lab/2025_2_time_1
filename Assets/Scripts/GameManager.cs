@@ -19,9 +19,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float defaultSensitivity = 100f;
     public float MouseSensitivity { get; private set; }
 
+    //Variaveis para Campo de Visao (FOV)
+    Camera myCamera;
+    public const string FOV_KEY = "FieldOfView";
+    [SerializeField] private float defaultFOV = 40f;
+    public float FieldOfView { get; private set; }
+
     private void Awake()
     {
-        
+        myCamera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -32,6 +38,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         MouseSensitivity = PlayerPrefs.GetFloat(SENSITIVITY_KEY, defaultSensitivity);
+        FieldOfView = PlayerPrefs.GetFloat(FOV_KEY, defaultFOV);
     }
 
     private void Start()
@@ -84,5 +91,15 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.Save();
 
         Debug.Log($"Sensibilidade alterada para: {newSensitivity}");
+    }
+
+    public void SetFieldOfView(float newFOV)
+    {
+        FieldOfView = newFOV;
+        myCamera.fieldOfView = newFOV;
+        PlayerPrefs.SetFloat(FOV_KEY, newFOV);
+        PlayerPrefs.Save();
+
+        Debug.Log($"Campo de Visão alterado para: {newFOV}");
     }
 }
