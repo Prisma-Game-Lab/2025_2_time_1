@@ -22,14 +22,23 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] InputAction moveAction;
     [SerializeField] InputAction lookAction;
     [SerializeField] InputAction jumpAction;
-    [SerializeField] InputAction attackAction;
+    [SerializeField] InputAction attackAction;        // botão esquerdo
+    [SerializeField] InputAction heavyAttackAction;   // botão direito
 
     [Header("Attack Stats")]
     [SerializeField] int attackDamage = 10;
     [SerializeField] float attackCooldown = 0.5f;
-    [SerializeField] float attackPhysicsForce = 20f;
-    [SerializeField] float attackDelayBeforeThrow = 0.15f; // tempo antes de lançar
+    [SerializeField] float heavyAttackCooldown = 1.2f;
+    [SerializeField] float lightAttackForce = 20f;
+    [SerializeField] float heavyAttackForce = 50f;
+    [SerializeField] float lightAttackDelay = 0.15f;
     [SerializeField] float range = 8f;
+
+    [Header("Efeitos Visuais")]
+    [SerializeField] ParticleSystem hitEffect;
+    [SerializeField] ParticleSystem heavyAttackEffect;
+    [SerializeField] float cameraImpactBack = 0.3f;
+    [SerializeField] float cameraImpactSpeed = 4f;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -56,6 +65,7 @@ public class PlayerMovement : MonoBehaviour
         lookAction?.Enable();
         jumpAction?.Enable();
         attackAction?.Enable();
+        heavyAttackAction?.Enable();
 
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
@@ -85,9 +95,13 @@ public class PlayerMovement : MonoBehaviour
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
         pitch = Mathf.Clamp(pitch, -80f, 80f);
 
-        // ataque
+        // ataque leve
         if (!isAttacking && attackAction != null && attackAction.triggered)
-            StartCoroutine(HandleAttack());
+            StartCoroutine(HandleAttack(lightAttackForce, lightAttackDelay, attackCooldown, false));
+
+        // ataque pesado (sincronizado com câmera)
+        if (!isAttacking && heavyAttackAction != null && heavyAttackAction.triggered)
+            StartCoroutine(HandleHeavyAttack());
 
         if (cooldownTimer > 0)
             cooldownTimer -= Time.deltaTime;
@@ -178,16 +192,35 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private IEnumerator HandleAttack()
+    private IEnumerator HandleAttack(float force, float delay, float cooldown, bool heavy)
     {
         if (cooldownTimer > 0) yield break;
-
         isAttacking = true;
 
-        // mini delay simulando o "puxar o braço"
-        yield return new WaitForSeconds(attackDelayBeforeThrow);
+        yield return new WaitForSeconds(delay);
 
-        // Se estiver segurando algo, arremessa
+        ApplyAttack(force, heavy);
+        cooldownTimer = cooldown;
+
+        isAttacking = false;
+    }
+
+    private IEnumerator HandleHeavyAttack()
+    {
+        if (cooldownTimer > 0) yield break;
+        isAttacking = true;
+
+        yield return StartCoroutine(CameraImpact(() =>
+        {
+            ApplyAttack(heavyAttackForce, true);
+        }));
+
+        cooldownTimer = heavyAttackCooldown;
+        isAttacking = false;
+    }
+
+    private void ApplyAttack(float force, bool heavy)
+    {
         if (heldObject != null)
         {
             Rigidbody thrownRb = heldObject.GetComponent<Rigidbody>();
@@ -195,9 +228,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (thrownRb != null)
             {
-                // força pra frente
-                thrownRb.AddForce(playerCamera.transform.forward * attackPhysicsForce, ForceMode.VelocityChange);
-                // rotação aleatória pra efeito natural
+                thrownRb.AddForce(playerCamera.transform.forward * force, ForceMode.VelocityChange);
                 thrownRb.AddTorque(Random.insideUnitSphere * 5f, ForceMode.Impulse);
             }
 
@@ -205,17 +236,47 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            // ataque normal com raycast
             Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
             if (Physics.Raycast(attackRay, out RaycastHit hit, range))
             {
                 if (hit.rigidbody != null)
-                    hit.rigidbody.velocity = playerCamera.transform.forward * attackPhysicsForce;
+                    hit.rigidbody.velocity = playerCamera.transform.forward * force;
+
+                if (heavy && heavyAttackEffect != null)
+                    Instantiate(heavyAttackEffect, hit.point, Quaternion.identity);
+                else if (hitEffect != null)
+                    Instantiate(hitEffect, hit.point, Quaternion.identity);
             }
         }
+    }
 
-        cooldownTimer = attackCooldown;
-        isAttacking = false;
+    private IEnumerator CameraImpact(System.Action onReturnStart)
+    {
+        Vector3 startPos = playerCamera.transform.localPosition;
+        Vector3 backPos = startPos - Vector3.forward * cameraImpactBack;
+        float t = 0f;
+
+        // fase de recuo (carregando o golpe)
+        while (t < 1f)
+        {
+            t += Time.deltaTime * cameraImpactSpeed;
+            playerCamera.transform.localPosition = Vector3.Lerp(startPos, backPos, t);
+            yield return null;
+        }
+
+        // início da volta (ataque sai aqui)
+        onReturnStart?.Invoke();
+
+        // fase de retorno
+        t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime * cameraImpactSpeed;
+            playerCamera.transform.localPosition = Vector3.Lerp(backPos, startPos, t);
+            yield return null;
+        }
+
+        playerCamera.transform.localPosition = startPos;
     }
 
     private void FixedUpdate()
@@ -233,10 +294,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
         rb.velocity = move * currentSpeed + new Vector3(0, rb.velocity.y, 0);
 
-        
-        float extraGravityMultiplier = 2f; // aumenta conforme quiser
+        float extraGravityMultiplier = 2f;
         rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
-
     }
 
     private void OnDisable()
@@ -245,6 +304,7 @@ public class PlayerMovement : MonoBehaviour
         lookAction?.Disable();
         jumpAction?.Disable();
         attackAction?.Disable();
+        heavyAttackAction?.Disable();
     }
 
     private void OnDrawGizmosSelected()
