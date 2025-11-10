@@ -1356,7 +1356,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e1fc29fcd3e84447941d7fbc7c4ab54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sounds: []
+  sounds:
+  - name: MusicaMenu
+    clip: {fileID: 8300000, guid: 0a69186909a80a844bf51a8e7b16aca1, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
 --- !u!4 &516883082
 Transform:
   m_ObjectHideFlags: 0
@@ -2096,6 +2102,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultSensitivity: 30
+  defaultFOV: 40
+  musicToPlay: MusicaMenu
 --- !u!4 &872550019
 Transform:
   m_ObjectHideFlags: 0

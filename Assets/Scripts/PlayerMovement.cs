@@ -6,6 +6,8 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
+    public static PlayerMovement Instance { get; private set; }
+
     [Header("Configurações de Movimento")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float sprintMultiplier = 1.8f;
