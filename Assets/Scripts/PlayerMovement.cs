@@ -6,6 +6,8 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
+    public static PlayerMovement Instance { get; private set; }
+
     [Header("Configurações de Movimento")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float sprintMultiplier = 1.8f;
@@ -53,6 +55,7 @@ public class PlayerMovement : MonoBehaviour
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
+    private PlayerSounds playerSounds;
 
     private void Start()
     {
@@ -77,6 +80,8 @@ public class PlayerMovement : MonoBehaviour
 
         CapsuleCollider col = GetComponentInChildren<CapsuleCollider>();
         colRadius = col != null ? col.radius : 0.5f;
+
+        playerSounds = GetComponent<PlayerSounds>();
     }
 
     private void Update()
@@ -189,6 +194,21 @@ public class PlayerMovement : MonoBehaviour
             {
                 heldObject.Drop();
                 heldObject = null;
+            }
+        }
+        // Controle de Audio de Passos
+        if (isGrounded && moveInput.magnitude > 0.1f)
+        {
+            if (playerSounds != null)
+            {
+                playerSounds.PlayWalkSound();
+            }
+        }
+        else
+        {
+            if (playerSounds != null)
+            {
+                playerSounds.StopWalkSound();
             }
         }
     }
