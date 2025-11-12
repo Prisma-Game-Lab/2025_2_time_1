@@ -39,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Efeitos Visuais")]
     [SerializeField] ParticleSystem hitEffect;
     [SerializeField] ParticleSystem heavyAttackEffect;
+    [SerializeField] ParticleSystem bloodEffect;
     [SerializeField] float cameraImpactBack = 0.3f;
     [SerializeField] float cameraImpactSpeed = 4f;
 
@@ -262,10 +263,22 @@ public class PlayerMovement : MonoBehaviour
                 if (hit.rigidbody != null)
                     hit.rigidbody.velocity = playerCamera.transform.forward * force;
 
-                if (heavy && heavyAttackEffect != null)
-                    Instantiate(heavyAttackEffect, hit.point, Quaternion.identity);
-                else if (hitEffect != null)
-                    Instantiate(hitEffect, hit.point, Quaternion.identity);
+                //Verifica se o objeto é um "Inimigo"
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    //Sangue
+                    if (bloodEffect != null)
+                    {
+                        Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                    }
+                }
+                else
+                {
+                    if (heavy && heavyAttackEffect != null)
+                        Instantiate(heavyAttackEffect, hit.point, Quaternion.identity);
+                    else if (hitEffect != null)
+                        Instantiate(hitEffect, hit.point, Quaternion.identity);
+                }
             }
         }
     }
