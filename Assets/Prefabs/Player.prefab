@@ -285,6 +285,7 @@ MonoBehaviour:
   range: 8
   hitEffect: {fileID: 0}
   heavyAttackEffect: {fileID: 0}
+  bloodEffect: {fileID: 0}
   cameraImpactBack: 0.3
   cameraImpactSpeed: 4
 --- !u!114 &4775366469624218330
