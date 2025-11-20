@@ -52,6 +52,8 @@ public class PlayerMovement : MonoBehaviour
     private float cooldownTimer = 0;
     private float lastJumpAttemptTime = -1f;
     private float colRadius;
+    private float jumpCheckCooldown = 0.5f;
+    private float jumpCheckTimer = 0f;
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
@@ -101,6 +103,14 @@ public class PlayerMovement : MonoBehaviour
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
         pitch = Mathf.Clamp(pitch, -80f, 80f);
 
+        bool jumpPressed = (jumpAction != null && jumpAction.triggered) ||
+                           (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame);
+
+        if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
+            lastJumpAttemptTime = Time.time;
+
+        
+
         // ataque leve
         if (!isAttacking && attackAction != null && attackAction.triggered)
             StartCoroutine(HandleAttack(lightAttackForce, lightAttackDelay, attackCooldown, false));
@@ -123,39 +133,12 @@ public class PlayerMovement : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-        // Ground check
-        if (groundCheck != null)
-        {
-            Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
-            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance);
-            if (!isGrounded)
-            {
-                int points = 4;
-                for (int i = 0; i < points; i++)
-                {
-                    float angle = (360f / points) * i * Mathf.Deg2Rad;
-                    Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * colRadius;
-                    if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance))
-                    {
-                        isGrounded = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        bool jumpPressed = (jumpAction != null && jumpAction.triggered) ||
-                           (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame);
-
-        if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
-            lastJumpAttemptTime = Time.time;
+        isGrounded = GroundCheck();
 
         if (jumpPressed && isGrounded)
         {
-            Vector3 v = rb.velocity;
-            v.y = 0f;
-            rb.velocity = v;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            jumpCheckTimer = jumpCheckCooldown;
         }
 
         // --- Interação com E ---
@@ -312,6 +295,27 @@ public class PlayerMovement : MonoBehaviour
         playerCamera.transform.localPosition = startPos;
     }
 
+    private bool GroundCheck()
+    {
+        // Ground check
+        if (groundCheck != null)
+        {
+            Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
+            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance);
+            if (isGrounded) return true;
+            int points = 4;
+            for (int i = 0; i < points; i++)
+            {
+                float angle = (360f / points) * i * Mathf.Deg2Rad;
+                Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * colRadius;
+                if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     private void FixedUpdate()
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
@@ -320,12 +324,27 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        isGrounded = GroundCheck();
+
         float currentSpeed = moveSpeed;
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
             currentSpeed *= sprintMultiplier;
 
+        
+
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
-        rb.velocity = move * currentSpeed + new Vector3(0, rb.velocity.y, 0);
+        float vSpeed = rb.velocity.y; ;
+        print(jumpCheckTimer);
+        jumpCheckTimer -= Time.deltaTime;
+        if (jumpCheckTimer < 0) { jumpCheckTimer = 0; }
+        if (isGrounded)
+        {
+            if (jumpCheckTimer <= 0f) {
+                vSpeed = 0f;
+            }
+        }
+
+        rb.velocity = move * currentSpeed + new Vector3(0, vSpeed, 0);
 
         float extraGravityMultiplier = 2f;
         rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
