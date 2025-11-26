@@ -4,8 +4,10 @@ using System.Linq;
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IDamageable
 {
+    public static PlayerMovement Instance { get; private set; }
+
     [Header("Configurações de Movimento")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float sprintMultiplier = 1.8f;
@@ -27,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Attack Stats")]
     [SerializeField] int attackDamage = 10;
+    [SerializeField] int heavyAttackDamage = 25;
     [SerializeField] float attackCooldown = 0.5f;
     [SerializeField] float heavyAttackCooldown = 1.2f;
     [SerializeField] float lightAttackForce = 20f;
@@ -41,6 +44,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float cameraImpactBack = 0.3f;
     [SerializeField] float cameraImpactSpeed = 4f;
 
+    [Header("Status")]
+    [SerializeField] int health = 100;
+
     private Rigidbody rb;
     private Vector2 moveInput;
     private Vector2 lookInput;
@@ -50,9 +56,12 @@ public class PlayerMovement : MonoBehaviour
     private float cooldownTimer = 0;
     private float lastJumpAttemptTime = -1f;
     private float colRadius;
+    private float jumpCheckCooldown = 0.5f;
+    private float jumpCheckTimer = 0f;
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
+    private PlayerSounds playerSounds;
 
     private void Start()
     {
@@ -77,6 +86,8 @@ public class PlayerMovement : MonoBehaviour
 
         CapsuleCollider col = GetComponentInChildren<CapsuleCollider>();
         colRadius = col != null ? col.radius : 0.5f;
+
+        playerSounds = GetComponent<PlayerSounds>();
     }
 
     private void Update()
@@ -95,6 +106,14 @@ public class PlayerMovement : MonoBehaviour
         yaw += lookInput.x * currentSensitivity * Time.deltaTime;
         pitch -= lookInput.y * currentSensitivity * Time.deltaTime;
         pitch = Mathf.Clamp(pitch, -80f, 80f);
+
+        bool jumpPressed = (jumpAction != null && jumpAction.triggered) ||
+                           (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame);
+
+        if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
+            lastJumpAttemptTime = Time.time;
+
+        
 
         // ataque leve
         if (!isAttacking && attackAction != null && attackAction.triggered)
@@ -118,39 +137,12 @@ public class PlayerMovement : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
 
-        // Ground check
-        if (groundCheck != null)
-        {
-            Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
-            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance);
-            if (!isGrounded)
-            {
-                int points = 4;
-                for (int i = 0; i < points; i++)
-                {
-                    float angle = (360f / points) * i * Mathf.Deg2Rad;
-                    Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * colRadius;
-                    if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance))
-                    {
-                        isGrounded = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        bool jumpPressed = (jumpAction != null && jumpAction.triggered) ||
-                           (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame);
-
-        if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
-            lastJumpAttemptTime = Time.time;
+        isGrounded = GroundCheck();
 
         if (jumpPressed && isGrounded)
         {
-            Vector3 v = rb.velocity;
-            v.y = 0f;
-            rb.velocity = v;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            jumpCheckTimer = jumpCheckCooldown;
         }
 
         // --- Interação com E ---
@@ -191,6 +183,21 @@ public class PlayerMovement : MonoBehaviour
                 heldObject = null;
             }
         }
+        // Controle de Audio de Passos
+        if (isGrounded && moveInput.magnitude > 0.1f)
+        {
+            if (playerSounds != null)
+            {
+                playerSounds.PlayWalkSound();
+            }
+        }
+        else
+        {
+            if (playerSounds != null)
+            {
+                playerSounds.StopWalkSound();
+            }
+        }
     }
 
     private IEnumerator HandleAttack(float force, float delay, float cooldown, bool heavy)
@@ -200,7 +207,7 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(delay);
 
-        ApplyAttack(force, heavy);
+        ApplyAttack(force, heavy, attackDamage);
         cooldownTimer = cooldown;
 
         isAttacking = false;
@@ -213,14 +220,14 @@ public class PlayerMovement : MonoBehaviour
 
         yield return StartCoroutine(CameraImpact(() =>
         {
-            ApplyAttack(heavyAttackForce, true);
+            ApplyAttack(heavyAttackForce, true, heavyAttackDamage);
         }));
 
         cooldownTimer = heavyAttackCooldown;
         isAttacking = false;
     }
 
-    private void ApplyAttack(float force, bool heavy)
+    private void ApplyAttack(float force, bool heavy, int damage)
     {
         if (heldObject != null)
         {
@@ -250,6 +257,12 @@ public class PlayerMovement : MonoBehaviour
                     if (bloodEffect != null)
                     {
                         Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                    }
+
+                    IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+                    if (damageable != null)
+                    {   
+                        damageable.GetHit(damage);
                     }
                 }
                 else
@@ -292,6 +305,27 @@ public class PlayerMovement : MonoBehaviour
         playerCamera.transform.localPosition = startPos;
     }
 
+    private bool GroundCheck()
+    {
+        // Ground check
+        if (groundCheck != null)
+        {
+            Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
+            isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance);
+            if (isGrounded) return true;
+            int points = 4;
+            for (int i = 0; i < points; i++)
+            {
+                float angle = (360f / points) * i * Mathf.Deg2Rad;
+                Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * colRadius;
+                if (Physics.Raycast(checkPos + offset, -groundCheck.transform.up, groundDistance))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     private void FixedUpdate()
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
@@ -300,12 +334,27 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        isGrounded = GroundCheck();
+
         float currentSpeed = moveSpeed;
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
             currentSpeed *= sprintMultiplier;
 
+        
+
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
-        rb.velocity = move * currentSpeed + new Vector3(0, rb.velocity.y, 0);
+        float vSpeed = rb.velocity.y; ;
+        //print(jumpCheckTimer);
+        jumpCheckTimer -= Time.deltaTime;
+        if (jumpCheckTimer < 0) { jumpCheckTimer = 0; }
+        if (isGrounded)
+        {
+            if (jumpCheckTimer <= 0f) {
+                vSpeed = 0f;
+            }
+        }
+
+        rb.velocity = move * currentSpeed + new Vector3(0, vSpeed, 0);
 
         float extraGravityMultiplier = 2f;
         rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
@@ -327,5 +376,21 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
         }
+    }
+
+    public void GetHit(int damage)
+    {
+        Debug.Log("Player got hit for " + damage + " damage.");
+        health -= damage;
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        Debug.Log("Player has died.");
+        //TODO: Implement death behavior (e.g., respawn, game over screen)
     }
 }
