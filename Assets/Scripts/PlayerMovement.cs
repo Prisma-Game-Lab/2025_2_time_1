@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Linq;
 using System.Collections;
+using UnityEngine.VFX;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
@@ -39,7 +40,9 @@ public class PlayerMovement : MonoBehaviour
     [Header("Efeitos Visuais")]
     [SerializeField] ParticleSystem hitEffect;
     [SerializeField] ParticleSystem heavyAttackEffect;
-    [SerializeField] ParticleSystem bloodEffect;
+    [SerializeField] VisualEffect bloodEffect;
+    [SerializeField] float vfxLifetime = 2f;
+
     [SerializeField] float cameraImpactBack = 0.3f;
     [SerializeField] float cameraImpactSpeed = 4f;
 
@@ -246,13 +249,15 @@ public class PlayerMovement : MonoBehaviour
                 if (hit.rigidbody != null)
                     hit.rigidbody.velocity = playerCamera.transform.forward * force;
 
+                VisualEffect effectToSpawn = null;
+
                 //Verifica se o objeto é um "Inimigo"
                 if (hit.collider.CompareTag("Enemy"))
                 {
                     //Sangue
                     if (bloodEffect != null)
                     {
-                        Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                        effectToSpawn = bloodEffect;
                     }
                 }
                 else
@@ -261,6 +266,13 @@ public class PlayerMovement : MonoBehaviour
                         Instantiate(heavyAttackEffect, hit.point, Quaternion.identity);
                     else if (hitEffect != null)
                         Instantiate(hitEffect, hit.point, Quaternion.identity);
+                }
+
+                if (effectToSpawn != null)
+                {
+                    VisualEffect vfxInstance = Instantiate(effectToSpawn, hit.point, Quaternion.LookRotation(hit.normal));
+                    vfxInstance.Play();
+                    Destroy(vfxInstance.gameObject, vfxLifetime);
                 }
             }
         }
