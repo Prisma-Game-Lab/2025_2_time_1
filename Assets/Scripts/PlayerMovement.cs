@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, IDamageable
 {
     public static PlayerMovement Instance { get; private set; }
 
@@ -29,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Attack Stats")]
     [SerializeField] int attackDamage = 10;
+    [SerializeField] int heavyAttackDamage = 25;
     [SerializeField] float attackCooldown = 0.5f;
     [SerializeField] float heavyAttackCooldown = 1.2f;
     [SerializeField] float lightAttackForce = 20f;
@@ -42,6 +43,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] ParticleSystem bloodEffect;
     [SerializeField] float cameraImpactBack = 0.3f;
     [SerializeField] float cameraImpactSpeed = 4f;
+
+    [Header("Status")]
+    [SerializeField] int health = 100;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -203,7 +207,7 @@ public class PlayerMovement : MonoBehaviour
 
         yield return new WaitForSeconds(delay);
 
-        ApplyAttack(force, heavy);
+        ApplyAttack(force, heavy, attackDamage);
         cooldownTimer = cooldown;
 
         isAttacking = false;
@@ -216,14 +220,14 @@ public class PlayerMovement : MonoBehaviour
 
         yield return StartCoroutine(CameraImpact(() =>
         {
-            ApplyAttack(heavyAttackForce, true);
+            ApplyAttack(heavyAttackForce, true, heavyAttackDamage);
         }));
 
         cooldownTimer = heavyAttackCooldown;
         isAttacking = false;
     }
 
-    private void ApplyAttack(float force, bool heavy)
+    private void ApplyAttack(float force, bool heavy, int damage)
     {
         if (heldObject != null)
         {
@@ -253,6 +257,12 @@ public class PlayerMovement : MonoBehaviour
                     if (bloodEffect != null)
                     {
                         Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
+                    }
+
+                    IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
+                    if (damageable != null)
+                    {   
+                        damageable.GetHit(damage);
                     }
                 }
                 else
@@ -334,7 +344,7 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
         float vSpeed = rb.velocity.y; ;
-        print(jumpCheckTimer);
+        //print(jumpCheckTimer);
         jumpCheckTimer -= Time.deltaTime;
         if (jumpCheckTimer < 0) { jumpCheckTimer = 0; }
         if (isGrounded)
@@ -366,5 +376,21 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(groundCheck.position, groundDistance);
         }
+    }
+
+    public void GetHit(int damage)
+    {
+        Debug.Log("Player got hit for " + damage + " damage.");
+        health -= damage;
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        Debug.Log("Player has died.");
+        //TODO: Implement death behavior (e.g., respawn, game over screen)
     }
 }
