@@ -719,6 +719,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1680189514075806400, guid: 434a08b076a204642aa9587367fc8017, type: 3}
+      propertyPath: walkSound
+      value: 
+      objectReference: {fileID: 8300000, guid: ae5463969d915074ea3d761d8cd12d59, type: 3}
     - target: {fileID: 3495862100433709571, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_LocalPosition.x
       value: -101.28
