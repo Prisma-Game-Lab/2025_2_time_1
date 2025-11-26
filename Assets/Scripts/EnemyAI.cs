@@ -9,15 +9,20 @@ using UnityEngine.XR;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : MonoBehaviour, IDamageable
 {
 
     [SerializeField] private float distanceToEngage = 15f;
     [SerializeField] private float distanceToDisengage = 20f;
     [SerializeField] private float distanceToAttack = 4f;
     [SerializeField] private float attackSpeed = .3f;
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] public int health = 30;
+    [SerializeField] private float deathUpwardForce = 10f;
+    [SerializeField] private float deathTorqueForce = 5f;
     private bool isAttacking = false;
     private Transform playerTransform;
+    private IDamageable playerDamageable;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     private enum State
@@ -34,6 +39,7 @@ public class EnemyAI : MonoBehaviour
     {
         currentState = State.Idle;
         playerTransform = GameObject.FindWithTag("Player").transform;
+        playerDamageable = GameObject.FindWithTag("Player").GetComponent<IDamageable>();
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
@@ -100,6 +106,7 @@ public class EnemyAI : MonoBehaviour
         navMeshAgent.isStopped = true;
         WaitForSecondsRealtime wait = new WaitForSecondsRealtime(attackSpeed);
         //TODO Insirir aqui a lógica de ataque (ex: reduzir vida do jogador)
+        Attack(attackDamage);
         StartCoroutine(AttackCooldown(wait));
         currentState = State.Idle; // Seta para Idle após o ataque para evitar multiplos ataques seguidos
         isAttacking = true;
@@ -108,7 +115,7 @@ public class EnemyAI : MonoBehaviour
     private void HandleDeadState()
     {
         // Logic for Dead state
-        Debug.Log("Enemy is dead.");
+        //Debug.Log("Enemy is dead.");
         navMeshAgent.isStopped = true;
         rb.constraints = RigidbodyConstraints.None;
 
@@ -138,6 +145,54 @@ public class EnemyAI : MonoBehaviour
 
             Debug.DrawLine(previousPoint, newPoint, color);
             previousPoint = newPoint;
+        }
+    }
+
+    public void GetHit(int damage)
+    {
+        //Debug.Log("Enemy got hit for " + damage + " damage.");
+        if (currentState == State.Dead)
+            return;
+        health -= damage;
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void Die()
+    {
+        currentState = State.Dead;
+        
+        // Libera todas as constraints do Rigidbody
+        rb.constraints = RigidbodyConstraints.None;
+        
+        // Desativa o NavMeshAgent para não interferir com a física
+        if (navMeshAgent != null)
+        {
+            navMeshAgent.enabled = false;
+        }
+        
+        // Aplica força para cima
+        rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
+        
+        // Aplica torque aleatório para girar
+        Vector3 randomTorque = new Vector3(
+            Random.Range(-deathTorqueForce, deathTorqueForce),
+            Random.Range(-deathTorqueForce, deathTorqueForce),
+            Random.Range(-deathTorqueForce, deathTorqueForce)
+        );
+        rb.AddTorque(randomTorque, ForceMode.Impulse);
+        
+        // Destruir o objeto após alguns segundos
+        Destroy(gameObject, 3f);
+    }
+
+    void Attack(int damage)
+    {
+        if (playerDamageable != null)
+        {
+            playerDamageable.GetHit(damage);
         }
     }
 }
