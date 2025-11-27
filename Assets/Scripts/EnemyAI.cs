@@ -17,12 +17,14 @@ public class EnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float distanceToAttack = 4f;
     [SerializeField] private float attackSpeed = .3f;
     [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackKnockbackForce = 5f;
     [SerializeField] public int health = 30;
     [SerializeField] private float deathUpwardForce = 10f;
     [SerializeField] private float deathTorqueForce = 5f;
     private bool isAttacking = false;
     private Transform playerTransform;
     private IDamageable playerDamageable;
+    private Rigidbody playerRb;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     private enum State
@@ -40,6 +42,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         currentState = State.Idle;
         playerTransform = GameObject.FindWithTag("Player").transform;
         playerDamageable = GameObject.FindWithTag("Player").GetComponent<IDamageable>();
+        playerRb = GameObject.FindWithTag("Player").GetComponent<Rigidbody>();
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
@@ -104,9 +107,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
         // Logic for Attack state
         // Debug.Log("Enemy is attacking the player.");
         navMeshAgent.isStopped = true;
-        WaitForSecondsRealtime wait = new WaitForSecondsRealtime(attackSpeed);
-        //TODO Insirir aqui a lógica de ataque (ex: reduzir vida do jogador)
         Attack(attackDamage);
+        WaitForSecondsRealtime wait = new WaitForSecondsRealtime(attackSpeed);
         StartCoroutine(AttackCooldown(wait));
         currentState = State.Idle; // Seta para Idle após o ataque para evitar multiplos ataques seguidos
         isAttacking = true;
@@ -193,6 +195,11 @@ public class EnemyAI : MonoBehaviour, IDamageable
         if (playerDamageable != null)
         {
             playerDamageable.GetHit(damage);
+            // Aplica um impulso para trás no jogador ao ser atacado
+            Vector3 directionAwayFromEnemy = (playerTransform.position - transform.position);
+            directionAwayFromEnemy.y = 0.1f; // Mantém o impulso no plano horizontal
+            directionAwayFromEnemy.Normalize();
+            playerRb.AddForce(directionAwayFromEnemy * attackKnockbackForce, ForceMode.Impulse);
         }
     }
 }
