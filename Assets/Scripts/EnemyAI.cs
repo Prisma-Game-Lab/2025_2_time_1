@@ -9,6 +9,7 @@ using UnityEngine.XR;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Animator))]
 public class EnemyAI : MonoBehaviour, IDamageable
 {
 
@@ -25,6 +26,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private IDamageable playerDamageable;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
+    private Animator animator;
     private enum State
     {
         Idle,
@@ -43,6 +45,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        animator = GetComponent<Animator>();
     }
 
 
@@ -68,6 +71,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
         DebugDrawCircle(transform.position, distanceToDisengage, Color.blue);    // Disengage
         //Debug.Log(Vector3.Distance(transform.position, playerTransform.position));
+        Debug.Log(animator.GetBool("isWalking"));
     }
 
     private void HandleIdleState()
@@ -80,6 +84,13 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
             currentState = State.Chase;
         }
+
+        // Setando animação de idle
+        if (animator.GetBool("isWalking") == true)
+        {
+            animator.SetBool("isWalking", false);
+        }
+
     }
     private void HandleChaseState()
     {
@@ -98,6 +109,12 @@ public class EnemyAI : MonoBehaviour, IDamageable
         {
             currentState = State.Idle;
         }
+
+        // Setando animação de caminhada
+        if (animator.GetBool("isWalking") == false)
+        {
+            animator.SetBool("isWalking", true);
+        }
     }
     private void HandleAttackState()
     {
@@ -110,6 +127,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         StartCoroutine(AttackCooldown(wait));
         currentState = State.Idle; // Seta para Idle após o ataque para evitar multiplos ataques seguidos
         isAttacking = true;
+
     }
 
     private void HandleDeadState()
@@ -118,6 +136,12 @@ public class EnemyAI : MonoBehaviour, IDamageable
         //Debug.Log("Enemy is dead.");
         navMeshAgent.isStopped = true;
         rb.constraints = RigidbodyConstraints.None;
+
+        // Setando animação de idle (sem movimento)
+        if (animator.GetBool("isWalking") == true)
+        {
+            animator.SetBool("isWalking", false);
+        }
 
     }
     
