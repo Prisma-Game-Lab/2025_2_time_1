@@ -8,6 +8,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 {
     public static PlayerMovement Instance { get; private set; }
 
+    // 🔥 JAB ANIMATION
+    private Animator anim;
+
     [Header("Configurações de Movimento")]
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float sprintMultiplier = 1.8f;
@@ -88,6 +91,11 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         colRadius = col != null ? col.radius : 0.5f;
 
         playerSounds = GetComponent<PlayerSounds>();
+
+        // 🔥 JAB ANIMATION — pega o Animator automaticamente
+        anim = GetComponentInChildren<Animator>();
+        if (anim == null)
+            Debug.LogWarning("Animator não encontrado! O Jab não vai animar.");
     }
 
     private void Update()
@@ -113,13 +121,11 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
             lastJumpAttemptTime = Time.time;
 
-        
-
-        // ataque leve
+        // ataque leve (JAB)
         if (!isAttacking && attackAction != null && attackAction.triggered)
             StartCoroutine(HandleAttack(lightAttackForce, lightAttackDelay, attackCooldown, false));
 
-        // ataque pesado (sincronizado com câmera)
+        // ataque pesado
         if (!isAttacking && heavyAttackAction != null && heavyAttackAction.triggered)
             StartCoroutine(HandleHeavyAttack());
 
@@ -145,7 +151,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             jumpCheckTimer = jumpCheckCooldown;
         }
 
-        // --- Interação com E ---
+        // interação com E
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (playerCamera == null) return;
@@ -183,7 +189,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 heldObject = null;
             }
         }
-        // Controle de Audio de Passos
+
+        // sons de passos
         if (isGrounded && moveInput.magnitude > 0.1f)
         {
             if (playerSounds != null)
@@ -204,6 +211,10 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     {
         if (cooldownTimer > 0) yield break;
         isAttacking = true;
+
+        // 🔥 JAB ANIMATION — toca aqui
+        if (anim != null)
+            anim.SetTrigger("Jab");
 
         yield return new WaitForSeconds(delay);
 
@@ -250,10 +261,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 if (hit.rigidbody != null)
                     hit.rigidbody.velocity = playerCamera.transform.forward * force;
 
-                //Verifica se o objeto é um "Inimigo"
                 if (hit.collider.CompareTag("Enemy"))
                 {
-                    //Sangue
                     if (bloodEffect != null)
                     {
                         Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
@@ -261,7 +270,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
                     IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
                     if (damageable != null)
-                    {   
+                    {
                         damageable.GetHit(damage);
                     }
                 }
@@ -282,7 +291,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         Vector3 backPos = startPos - Vector3.forward * cameraImpactBack;
         float t = 0f;
 
-        // fase de recuo (carregando o golpe)
         while (t < 1f)
         {
             t += Time.deltaTime * cameraImpactSpeed;
@@ -290,10 +298,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             yield return null;
         }
 
-        // início da volta (ataque sai aqui)
         onReturnStart?.Invoke();
 
-        // fase de retorno
         t = 0f;
         while (t < 1f)
         {
@@ -307,7 +313,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
     private bool GroundCheck()
     {
-        // Ground check
         if (groundCheck != null)
         {
             Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
@@ -326,6 +331,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         }
         return false;
     }
+
     private void FixedUpdate()
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
@@ -340,16 +346,15 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
             currentSpeed *= sprintMultiplier;
 
-        
-
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
-        float vSpeed = rb.velocity.y; ;
-        //print(jumpCheckTimer);
+        float vSpeed = rb.velocity.y;
         jumpCheckTimer -= Time.deltaTime;
-        if (jumpCheckTimer < 0) { jumpCheckTimer = 0; }
+        if (jumpCheckTimer < 0) jumpCheckTimer = 0;
+
         if (isGrounded)
         {
-            if (jumpCheckTimer <= 0f) {
+            if (jumpCheckTimer <= 0f)
+            {
                 vSpeed = 0f;
             }
         }
@@ -391,6 +396,5 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     public void Die()
     {
         Debug.Log("Player has died.");
-        //TODO: Implement death behavior (e.g., respawn, game over screen)
     }
 }
