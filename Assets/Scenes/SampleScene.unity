@@ -594,6 +594,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 288806824}
     m_Modifications:
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2460411609777867492, guid: 201489fde49496343a468aad25e9f804, type: 3}
       propertyPath: m_Name
       value: Enemy
@@ -671,6 +679,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 288806824}
     m_Modifications:
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2460411609777867492, guid: 201489fde49496343a468aad25e9f804, type: 3}
       propertyPath: m_Name
       value: Enemy (2)
@@ -755,6 +771,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 288806824}
     m_Modifications:
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1392040699038683534, guid: 201489fde49496343a468aad25e9f804, type: 3}
       propertyPath: m_TagString
       value: Enemy
@@ -1171,6 +1195,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 288806824}
     m_Modifications:
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013538672907036354, guid: 201489fde49496343a468aad25e9f804, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 2460411609777867492, guid: 201489fde49496343a468aad25e9f804, type: 3}
       propertyPath: m_Name
       value: Enemy (3)

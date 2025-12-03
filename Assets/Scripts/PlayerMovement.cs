@@ -8,20 +8,19 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 {
     public static PlayerMovement Instance { get; private set; }
 
-    // 🔥 JAB ANIMATION
     private Animator anim;
 
-    // ---------------- COMBO / CHARGES (OPÇÃO D) ----------------
-    [Header("Combo (opção D)")]
+    [Header("Combo")]
     [SerializeField] private int hitsPerCharge = 5;
-    [SerializeField] private float comboDuration = 4f; // tempo até resetar se não acertar
-    private int comboCount = 0;        // contagem atual do combo (reseta em timeout/miss)
-    private int charges = 0;          // quantas cargas de soco forte o player acumulou
+    [SerializeField] private float comboDuration = 4f;
+    private int comboCount = 0;
+    private int charges = 0;
     private float comboTimer = 0f;
-    private int lastChargeThreshold = 0; // quantos hits contabilizados para charges (multiplo de hitsPerCharge)
+    private int lastChargeThreshold = 0;
 
-    public System.Action<int> OnComboChanged;   // passa comboCount
-    public System.Action<int> OnChargesChanged; // passa charges
+    public System.Action<int> OnComboChanged;
+    public System.Action<int> OnChargesChanged;
+
     // ---------------------------------------------------------
 
     [Header("Configurações de Movimento")]
@@ -40,21 +39,21 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     [SerializeField] InputAction moveAction;
     [SerializeField] InputAction lookAction;
     [SerializeField] InputAction jumpAction;
-    [SerializeField] InputAction attackAction;        // botão esquerdo (ataque leve)
-    [SerializeField] InputAction heavyAttackAction;   // botão direito (soco carregado)
+    [SerializeField] InputAction attackAction;
+    [SerializeField] InputAction heavyAttackAction;
 
     [Header("Attack Stats")]
     [SerializeField] int attackDamage = 10;
-    [SerializeField] int heavyAttackDamage = 9999; // hit kill
+    [SerializeField] int heavyAttackDamage = 9999;
     [SerializeField] float attackCooldown = 0.5f;
     [SerializeField] float heavyAttackCooldown = 1.2f;
     [SerializeField] float lightAttackForce = 20f;
-    [SerializeField] float heavyAttackForce = 50f; // força aplicada ao rigidbody em ataques normais
+    [SerializeField] float heavyAttackForce = 50f;
     [SerializeField] float lightAttackDelay = 0.15f;
     [SerializeField] float range = 8f;
 
     [Header("Strong Punch Charge")]
-    [SerializeField] float heavyChargeTime = 0.8f; // tempo segurando para completar
+    [SerializeField] float heavyChargeTime = 0.8f;
     private bool isChargingHeavy = false;
     private float heavyChargeTimer = 0f;
 
@@ -65,10 +64,17 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     [SerializeField] float cameraImpactBack = 0.3f;
     [SerializeField] float cameraImpactSpeed = 4f;
 
+    // ---- NOVO: FOV ZOOM ----
+    [Header("Heavy Attack Camera Zoom")]
+    [SerializeField] float normalFOV = 60f;
+    [SerializeField] float chargingFOV = 50f;
+    [SerializeField] float punchReleaseFOV = 70f;
+    [SerializeField] float fovLerpSpeed = 8f;
+    private float targetFOV;
+
     [Header("Status")]
     [SerializeField] int health = 100;
 
-    // fallback/defaults
     private const float defaultMouseSensitivity = 1f;
 
     private Rigidbody rb;
@@ -118,19 +124,21 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         playerSounds = GetComponent<PlayerSounds>();
 
-        // 🔥 JAB ANIMATION — pega o Animator automaticamente
         anim = GetComponentInChildren<Animator>();
-        if (anim == null)
-            Debug.LogWarning("Animator não encontrado! O Jab não vai animar.");
 
-        // notificar UI do estado inicial
         OnComboChanged?.Invoke(comboCount);
         OnChargesChanged?.Invoke(charges);
+
+        // Inicializar FOV
+        targetFOV = normalFOV;
+        if (playerCamera != null)
+            playerCamera.fieldOfView = normalFOV;
     }
 
     private void Update()
     {
-        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
+        if (GameManager.Instance != null &&
+            GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
             moveInput = Vector2.zero;
             lookInput = Vector2.zero;
@@ -140,7 +148,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         if (moveAction != null) moveInput = moveAction.ReadValue<Vector2>();
         if (lookAction != null) lookInput = lookAction.ReadValue<Vector2>();
 
-        // ACESSO SEGURO À SENSIBILIDADE DO MOUSE
         float currentSensitivity = defaultMouseSensitivity;
         if (GameManager.Instance != null)
             currentSensitivity = GameManager.Instance.MouseSensitivity;
@@ -155,23 +162,20 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         if (jumpPressed && Time.time - lastJumpAttemptTime > 0.2f)
             lastJumpAttemptTime = Time.time;
 
-        // ataque leve (JAB)
         if (!isAttacking && attackAction != null && attackAction.triggered)
             StartCoroutine(HandleAttack(lightAttackForce, lightAttackDelay, attackCooldown));
 
-        // ataque forte: carregamento usando o botão direito do mouse (InputSystem)
         HandleHeavyChargeInput();
 
         if (cooldownTimer > 0)
             cooldownTimer -= Time.deltaTime;
 
-        // COMBO TIMER: zera se passar tempo sem acertar
         if (comboCount > 0)
         {
             comboTimer += Time.deltaTime;
             if (comboTimer >= comboDuration)
             {
-                ResetCombo(); // zera combo e não altera charges acumuladas
+                ResetCombo();
             }
         }
 
@@ -182,10 +186,15 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 Quaternion.Euler(pitch, 0f, 0f),
                 rotationSmoothTime * 50f
             );
+
+            playerCamera.fieldOfView = Mathf.Lerp(
+                playerCamera.fieldOfView,
+                targetFOV,
+                Time.deltaTime * fovLerpSpeed
+            );
         }
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
-
         isGrounded = GroundCheck();
 
         if (jumpPressed && isGrounded)
@@ -194,7 +203,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             jumpCheckTimer = jumpCheckCooldown;
         }
 
-        // interação com E (pegar / soltar)
+        // --- Interação com E ---
         if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (playerCamera == null) return;
@@ -206,6 +215,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 rayOrigin += rayDirection * 1.5f;
 
                 RaycastHit[] hits = Physics.RaycastAll(rayOrigin, rayDirection, 3f, ~0, QueryTriggerInteraction.Ignore);
+
                 if (hits == null || hits.Length == 0) return;
 
                 RaycastHit? validHit = hits
@@ -216,10 +226,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 if (!validHit.HasValue || validHit.Value.collider == null)
                     return;
 
-                RaycastHit hit = validHit.Value;
-
-                HoldableObject holdable = hit.collider.GetComponent<HoldableObject>() ??
-                                          hit.collider.GetComponentInParent<HoldableObject>();
+                HoldableObject holdable =
+                    validHit.Value.collider.GetComponent<HoldableObject>() ??
+                    validHit.Value.collider.GetComponentInParent<HoldableObject>();
 
                 if (holdable == null) return;
 
@@ -233,17 +242,10 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             }
         }
 
-        // sons de passos
         if (isGrounded && moveInput.magnitude > 0.1f)
-        {
-            if (playerSounds != null)
-                playerSounds.PlayWalkSound();
-        }
+            playerSounds?.PlayWalkSound();
         else
-        {
-            if (playerSounds != null)
-                playerSounds.StopWalkSound();
-        }
+            playerSounds?.StopWalkSound();
     }
 
     private void HandleHeavyChargeInput()
@@ -257,6 +259,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             {
                 isChargingHeavy = true;
                 heavyChargeTimer = 0f;
+
+                // ZOOM IN
+                targetFOV = chargingFOV;
             }
         }
         else
@@ -269,16 +274,23 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             if (mouse.rightButton.wasReleasedThisFrame)
             {
                 isChargingHeavy = false;
+
+                // Efeito de impacto → zoom-out e volta
+                StartCoroutine(HeavyPunchZoomImpact());
+
                 if (heavyChargeTimer >= heavyChargeTime)
                 {
                     PerformStrongPunch();
                 }
-                else
-                {
-                    // cancelado
-                }
             }
         }
+    }
+
+    private IEnumerator HeavyPunchZoomImpact()
+    {
+        targetFOV = punchReleaseFOV;
+        yield return new WaitForSeconds(0.12f);
+        targetFOV = normalFOV;
     }
 
     private IEnumerator HandleAttack(float force, float delay, float cooldown)
@@ -286,8 +298,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         if (cooldownTimer > 0) yield break;
         isAttacking = true;
 
-        if (anim != null)
-            anim.SetTrigger("Jab");
+        anim?.SetTrigger("Jab");
 
         yield return new WaitForSeconds(delay);
 
@@ -297,29 +308,10 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         isAttacking = false;
     }
 
-    private IEnumerator HandleHeavyAttack() // fallback (não usado pela nova lógica de hold)
-    {
-        if (cooldownTimer > 0) yield break;
-        isAttacking = true;
-
-        yield return StartCoroutine(CameraImpact(() =>
-        {
-            ApplyAttack(heavyAttackForce, true, heavyAttackDamage);
-        }));
-
-        cooldownTimer = heavyAttackCooldown;
-        isAttacking = false;
-    }
-
     private void ApplyAttack(float force, bool heavy, int damage)
     {
-        if (playerCamera == null)
-        {
-            Debug.LogWarning("ApplyAttack chamado mas playerCamera == null");
-            return;
-        }
+        if (playerCamera == null) return;
 
-        // se está segurando objeto => arremesso (isso conta como ataque, mas NÃO conta como hit em inimigo)
         if (heldObject != null)
         {
             Rigidbody thrownRb = heldObject.GetComponent<Rigidbody>();
@@ -332,29 +324,30 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             }
 
             heldObject = null;
-
-            // ATENÇÃO: arremesso não é acerto → reseta combo (opcional conforme design)
             ResetCombo();
             return;
         }
 
         Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+
         if (Physics.Raycast(attackRay, out RaycastHit hit, range))
         {
-            if (hit.rigidbody != null)
-                hit.rigidbody.velocity = playerCamera.transform.forward * force;
+            if (!heavy)   
+            {
+                if (hit.rigidbody != null)
+                    hit.rigidbody.velocity = playerCamera.transform.forward * force;
+            }
+
 
             if (hit.collider.CompareTag("Enemy"))
             {
                 if (bloodEffect != null)
                     Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
 
-                IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
-                if (damageable != null)
-                {
-                    damageable.GetHit(damage);
-                    RegisterSuccessfulHit();
-                }
+                IDamageable dmg = hit.collider.GetComponentInParent<IDamageable>();
+                dmg?.GetHit(damage);
+
+                RegisterSuccessfulHit();
             }
             else
             {
@@ -392,24 +385,19 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     {
         comboCount = 0;
         comboTimer = 0f;
-        lastChargeThreshold = 0; // comente se preferir acumular charges entre combos
+        lastChargeThreshold = 0;
         OnComboChanged?.Invoke(comboCount);
     }
 
-    // Executa soco forte: consome 1 charge e aplica TakeStrongPunch em enemy
     private void PerformStrongPunch()
     {
         if (charges <= 0) return;
-        if (playerCamera == null)
-        {
-            Debug.LogWarning("PerformStrongPunch chamado mas playerCamera == null");
-            return;
-        }
+        if (playerCamera == null) return;
 
-        if (anim != null)
-            anim.SetTrigger("Heavy");
+        anim?.SetTrigger("Heavy");
 
         Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+
         if (Physics.Raycast(attackRay, out RaycastHit hit, range))
         {
             if (hit.collider.CompareTag("Enemy"))
@@ -469,6 +457,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             Vector3 checkPos = groundCheck.position + new Vector3(0, 0.1f, 0);
             isGrounded = Physics.Raycast(checkPos, -groundCheck.transform.up, groundDistance);
             if (isGrounded) return true;
+
             int points = 4;
             for (int i = 0; i < points; i++)
             {
@@ -485,7 +474,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
-        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
+        if (GameManager.Instance != null &&
+            GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
             rb.velocity = new Vector3(0, rb.velocity.y, 0);
             return;
@@ -498,17 +488,13 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             currentSpeed *= sprintMultiplier;
 
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
+
         float vSpeed = rb.velocity.y;
         jumpCheckTimer -= Time.deltaTime;
         if (jumpCheckTimer < 0) jumpCheckTimer = 0;
 
-        if (isGrounded)
-        {
-            if (jumpCheckTimer <= 0f)
-            {
-                vSpeed = 0f;
-            }
-        }
+        if (isGrounded && jumpCheckTimer <= 0f)
+            vSpeed = 0f;
 
         rb.velocity = move * currentSpeed + new Vector3(0, vSpeed, 0);
 
@@ -540,9 +526,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         Debug.Log("Player got hit for " + damage + " damage.");
         health -= damage;
         if (health <= 0)
-        {
             Die();
-        }
     }
 
     public void Die()
@@ -550,7 +534,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         Debug.Log("Player has died.");
     }
 
-    // helpers pra debug / UI acesso
     public int GetComboCount() => comboCount;
     public int GetCharges() => charges;
 }
