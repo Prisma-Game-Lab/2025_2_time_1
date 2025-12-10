@@ -1332,6 +1332,10 @@ PrefabInstance:
       propertyPath: m_Cameras.Array.data[1]
       value: 
       objectReference: {fileID: 1566457331}
+    - target: {fileID: 4278225140968970905, guid: 434a08b076a204642aa9587367fc8017, type: 3}
+      propertyPath: m_RequiresDepthTextureOption
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4804683024767415657, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_Name
       value: Player
@@ -1954,7 +1958,7 @@ Transform:
   m_GameObject: {fileID: 1317463995}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.41, z: 0}
+  m_LocalPosition: {x: 0, y: 3.68, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4142,11 +4146,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5929973355272442055, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.43
+      value: -6.95
       objectReference: {fileID: 0}
     - target: {fileID: 5929973355272442055, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.03
+      value: -8.81
       objectReference: {fileID: 0}
     - target: {fileID: 5929973355272442055, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
       propertyPath: m_LocalRotation.w

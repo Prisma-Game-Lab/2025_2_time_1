@@ -271,6 +271,14 @@ public class PlayerMovement : MonoBehaviour
                 if (effectToSpawn != null)
                 {
                     VisualEffect vfxInstance = Instantiate(effectToSpawn, hit.point, Quaternion.LookRotation(hit.normal));
+
+                    int count = heavy ? 50 : 15;
+
+                    if (vfxInstance.HasInt("BloodCount"))
+                    {
+                        vfxInstance.SetInt("BloodCount", count);
+                    }
+
                     vfxInstance.Play();
                     Destroy(vfxInstance.gameObject, vfxLifetime);
                 }
