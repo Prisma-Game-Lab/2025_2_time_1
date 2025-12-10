@@ -50,6 +50,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private Rigidbody rb;
     private Vector2 moveInput;
     private Vector2 lookInput;
+    private GameObject armsGameObject;
+    private Animator armsAnimator;
     private float pitch;
     private float yaw;
     private bool isGrounded;
@@ -90,6 +92,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         colRadius = col != null ? col.radius : 0.5f;
 
         playerSounds = GetComponent<PlayerSounds>();
+
+        armsGameObject = GameObject.FindGameObjectWithTag("Arms");
+        armsAnimator = armsGameObject.GetComponent<Animator>();
     }
 
     private void Update()
@@ -206,7 +211,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     {
         if (cooldownTimer > 0) yield break;
         isAttacking = true;
-
+        armsAnimator.SetTrigger("attackJab");
         yield return new WaitForSeconds(delay);
 
         ApplyAttack(force, heavy, attackDamage);
@@ -219,7 +224,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     {
         if (cooldownTimer > 0) yield break;
         isAttacking = true;
-
+        armsAnimator.SetTrigger("attackStraight");
         yield return StartCoroutine(CameraImpact(() =>
         {
             ApplyAttack(heavyAttackForce, true, heavyAttackDamage);
