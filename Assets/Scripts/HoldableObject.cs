@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class HoldableObject : MonoBehaviour, IHoldable
+public class HoldableObject : MonoBehaviour
 {
     private Rigidbody rb;
     private Transform holdParent;
@@ -12,13 +12,12 @@ public class HoldableObject : MonoBehaviour, IHoldable
     public float followSpeed = 15f;
 
     [Header("Ajustes Visuais")]
-    public Vector3 holdOffset = Vector3.zero;
-    public Vector3 rotationOffset = Vector3.zero;
+    public Vector3 holdOffset = Vector3.zero;        // Ajuste de posição
+    public Vector3 rotationOffset = Vector3.zero;    // Novo: ajuste de rotação (em graus)
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
     public void PickUp(Camera cam)
@@ -29,7 +28,6 @@ public class HoldableObject : MonoBehaviour, IHoldable
         isHeld = true;
         rb.useGravity = false;
         rb.constraints = RigidbodyConstraints.FreezeRotation;
-
         holdParent = cam.transform;
     }
 
@@ -40,7 +38,6 @@ public class HoldableObject : MonoBehaviour, IHoldable
         isHeld = false;
         rb.useGravity = true;
         rb.constraints = RigidbodyConstraints.None;
-
         holdParent = null;
     }
 
@@ -48,28 +45,15 @@ public class HoldableObject : MonoBehaviour, IHoldable
     {
         if (isHeld && holdParent != null)
         {
-            Vector3 targetPos =
-                holdParent.position +
-                holdParent.forward * holdDistance +
-                holdParent.TransformDirection(holdOffset);
+            // Posição alvo com offset
+            Vector3 targetPos = holdParent.position + holdParent.forward * holdDistance
+                                + holdParent.TransformDirection(holdOffset);
 
-            rb.MovePosition(
-                Vector3.Lerp(rb.position, targetPos, Time.fixedDeltaTime * followSpeed)
-            );
+            rb.MovePosition(Vector3.Lerp(rb.position, targetPos, Time.fixedDeltaTime * followSpeed));
 
-            Quaternion targetRot =
-                holdParent.rotation *
-                Quaternion.Euler(rotationOffset);
-
-            rb.MoveRotation(
-                Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * followSpeed)
-            );
+            // Rotação alvo com offset
+            Quaternion targetRot = holdParent.rotation * Quaternion.Euler(rotationOffset);
+            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, Time.fixedDeltaTime * followSpeed));
         }
-    }
-
-    // Interface IHoldable
-    public Rigidbody GetRigidbody()
-    {
-        return rb;
     }
 }
