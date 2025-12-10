@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.XR;
 
 // Para o Script funcionar, a cena deve ter um NavMesh criado e feito o bake com NavMeshSurfacee agentType Enemy 
 // e o inimigo deve ter um componente NavMeshAgent anexado.
@@ -13,15 +11,14 @@ using UnityEngine.XR;
 public class EnemyAI : MonoBehaviour, IDamageable
 {
 
-    [SerializeField] private float distanceToEngage = 15f;
-    [SerializeField] private float distanceToDisengage = 20f;
+    [SerializeField] private float distanceToEngage = 30f;
+    [SerializeField] private float distanceToDisengage = 40f;
     [SerializeField] private float distanceToAttack = 4f;
-    [SerializeField] private float attackSpeed = .3f;
+    [SerializeField] private float attackSpeed = 2f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] public int health = 30;
     [SerializeField] private float deathUpwardForce = 10f;
     [SerializeField] private float deathTorqueForce = 5f;
-    private bool isAttacking = false;
     private Transform playerTransform;
     private IDamageable playerDamageable;
     private NavMeshAgent navMeshAgent;
@@ -36,6 +33,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
     }
 
     private State currentState;
+    private float pathUpdateDeadline = 0;
+    private float pathUpdateDelay = 0.2f;
+    private bool isAttacking = false;
 
     void Start()
     {
@@ -71,63 +71,65 @@ public class EnemyAI : MonoBehaviour, IDamageable
         DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
         DebugDrawCircle(transform.position, distanceToDisengage, Color.blue);    // Disengage
         //Debug.Log(Vector3.Distance(transform.position, playerTransform.position));
-        Debug.Log(animator.GetBool("isWalking"));
+        //Debug.Log(animator.GetBool("isWalking"));
     }
 
     private void HandleIdleState()
     {
         // Logic for Idle state
-        //Debug.Log("Enemy is idle.");
+        // Debug.Log("Enemy is idle.");
         navMeshAgent.isStopped = true;
-        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage && !isAttacking)
+        animator.SetFloat("speed", navMeshAgent.desiredVelocity.sqrMagnitude);
+        transform.rotation = Quaternion.identity;
+        // print("Distancia ao jogador: " + Vector3.Distance(transform.position, playerTransform.position));
+        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage)
         {
 
             currentState = State.Chase;
+            return;
         }
-
-        // Setando animação de idle
-        if (animator.GetBool("isWalking") == true)
-        {
-            animator.SetBool("isWalking", false);
-        }
-
     }
     private void HandleChaseState()
     {
         // Logic for Chase state
-        //Debug.Log("Enemy is chasing the player.");
-        navMeshAgent.SetDestination(playerTransform.position);
+        // Debug.Log("Enemy is chasing.");
+        // navMeshAgent.SetDestination(playerTransform.position);
+        UpdatePath();
         navMeshAgent.isStopped = false;
-
+        animator.SetFloat("speed", navMeshAgent.desiredVelocity.sqrMagnitude);
         // Trocar para Attack se estiver perto o suficiente
         if (Vector3.Distance(transform.position, playerTransform.position) < distanceToAttack)
         {
             currentState = State.Attack;
+            return;
         }
         // Trocar para Idle se estiver longe o bastante
         else if (Vector3.Distance(transform.position, playerTransform.position) > distanceToDisengage)
         {
             currentState = State.Idle;
-        }
-
-        // Setando animação de caminhada
-        if (animator.GetBool("isWalking") == false)
-        {
-            animator.SetBool("isWalking", true);
+            return;
         }
     }
     private void HandleAttackState()
     {
+        animator.SetBool("isInRange",true);
+        // Troca para Chase se o jogador estiver longe para o ataque
+        if (Vector3.Distance(transform.position, playerTransform.position) > distanceToAttack)
+        {
+            currentState = State.Chase;
+            animator.SetBool("isInRange",false);
+            return;
+        }
         // Logic for Attack state
-        // Debug.Log("Enemy is attacking the player.");
         navMeshAgent.isStopped = true;
         WaitForSecondsRealtime wait = new WaitForSecondsRealtime(attackSpeed);
-        //TODO Insirir aqui a lógica de ataque (ex: reduzir vida do jogador)
-        Attack(attackDamage);
-        StartCoroutine(AttackCooldown(wait));
-        currentState = State.Idle; // Seta para Idle após o ataque para evitar multiplos ataques seguidos
-        isAttacking = true;
-
+        LookAtTarget();
+        if (!isAttacking)
+        {
+            Debug.Log("Enemy is attacking the player.");
+            isAttacking = true;
+            StartCoroutine(AttackCoroutine(wait));
+        }
     }
 
     private void HandleDeadState()
@@ -145,12 +147,13 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     }
     
-        private IEnumerator AttackCooldown(WaitForSecondsRealtime wait)
+        private IEnumerator AttackCoroutine(WaitForSecondsRealtime wait)
     {
-        Debug.Log("Enemy is cooling down after attack.");
+        animator.SetTrigger("attack");
+        Attack(attackDamage);
         yield return wait;
-        Debug.Log("Enemy finished cooldown.");
         isAttacking = false;
+
     }
 
     private void DebugDrawCircle(Vector3 center, float radius, Color color, int segments = 50)
@@ -212,11 +215,29 @@ public class EnemyAI : MonoBehaviour, IDamageable
         Destroy(gameObject, 3f);
     }
 
-    void Attack(int damage)
+    public void Attack(int damage)
     {
         if (playerDamageable != null)
         {
             playerDamageable.GetHit(damage);
+        }
+    }
+
+    private void LookAtTarget()
+    {
+        Vector3 lookPos = playerTransform.position - transform.position;
+        lookPos.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(lookPos);
+        transform.rotation = Quaternion.Slerp(transform.rotation,rotation,0.2f);
+
+    }
+
+    private void UpdatePath()
+    {
+        if (Time.time >= pathUpdateDeadline)
+        {
+            pathUpdateDeadline = Time.time + pathUpdateDelay;
+            navMeshAgent.SetDestination(playerTransform.position);
         }
     }
 }
