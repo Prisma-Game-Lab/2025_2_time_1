@@ -13,7 +13,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     [SerializeField] private float distanceToEngage = 30f;
     [SerializeField] private float distanceToDisengage = 40f;
-    [SerializeField] private float distanceToAttack = 4f;
+    [SerializeField] private float distanceToAttack = 8f;
     [SerializeField] private float attackSpeed = 2f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] public int health = 30;
@@ -43,13 +43,14 @@ public class EnemyAI : MonoBehaviour, IDamageable
         playerTransform = GameObject.FindWithTag("Player").transform;
         playerDamageable = GameObject.FindWithTag("Player").GetComponent<IDamageable>();
         navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.stoppingDistance = distanceToAttack - 0.1f;
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         animator = GetComponent<Animator>();
     }
 
 
-    void Update()
+    void FixedUpdate()
     {
         switch (currentState)
         {
@@ -66,6 +67,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
                 HandleDeadState();
                 break;
         }
+        Debug.Log("Velocidade desejada" + navMeshAgent.desiredVelocity.magnitude);
+        Debug.Log("Velocidade atual" + navMeshAgent.velocity.magnitude);
 
         DebugDrawCircle(transform.position, distanceToEngage, Color.yellow);  // Engage
         DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
@@ -79,8 +82,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         // Logic for Idle state
         // Debug.Log("Enemy is idle.");
         navMeshAgent.isStopped = true;
-        animator.SetFloat("speed", navMeshAgent.desiredVelocity.sqrMagnitude);
-        transform.rotation = Quaternion.identity;
+        animator.SetFloat("speed", navMeshAgent.velocity.magnitude);
         // print("Distancia ao jogador: " + Vector3.Distance(transform.position, playerTransform.position));
         if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage)
         {
@@ -96,7 +98,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
         // navMeshAgent.SetDestination(playerTransform.position);
         UpdatePath();
         navMeshAgent.isStopped = false;
-        animator.SetFloat("speed", navMeshAgent.desiredVelocity.sqrMagnitude);
+        animator.SetFloat("speed", navMeshAgent.velocity.magnitude);
         // Trocar para Attack se estiver perto o suficiente
         if (Vector3.Distance(transform.position, playerTransform.position) < distanceToAttack)
         {
@@ -112,6 +114,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     }
     private void HandleAttackState()
     {
+
         animator.SetBool("isInRange",true);
         // Troca para Chase se o jogador estiver longe para o ataque
         if (Vector3.Distance(transform.position, playerTransform.position) > distanceToAttack)
