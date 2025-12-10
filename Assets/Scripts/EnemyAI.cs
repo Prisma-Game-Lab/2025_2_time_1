@@ -1,235 +1,143 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.XR;
+
+// Para o Script funcionar, a cena deve ter um NavMesh criado e feito o bake com NavMeshSurfacee agentType Enemy 
+// e o inimigo deve ter um componente NavMeshAgent anexado.
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
-public class EnemyAI : MonoBehaviour, IDamageable
+public class EnemyAI : MonoBehaviour
 {
-    public static System.Action<EnemyAI> OnEnemyDied;
 
-    [Header("Configurações")]
     [SerializeField] private float distanceToEngage = 15f;
     [SerializeField] private float distanceToDisengage = 20f;
     [SerializeField] private float distanceToAttack = 4f;
-    [SerializeField] private float attackSpeed = .6f;
-    [SerializeField] private int attackDamage = 10;
-    [SerializeField] public int health = 30;
-
-    [Header("Death Physics")]
-    [SerializeField] private float deathUpwardForce = 10f;
-    [SerializeField] private float deathTorqueForce = 5f;
-
-    [Header("Strong Punch")]
-    [SerializeField] private float strongPunchLaunchForce = 420f;
-  
-
+    [SerializeField] private float attackSpeed = .3f;
     private bool isAttacking = false;
-    private bool isDead = false;
-
     private Transform playerTransform;
-    private IDamageable playerDamageable;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
-    private Collider col;
+    private enum State
+    {
+        Idle,
+        Chase,
+        Attack,
+        Dead,
+    }
 
-    private enum State { Idle, Chase, Attack, Dead }
     private State currentState;
 
     void Start()
     {
         currentState = State.Idle;
-
-        GameObject playerGO = GameObject.FindWithTag("Player");
-        if (playerGO != null)
-        {
-            playerTransform = playerGO.transform;
-            playerDamageable = playerGO.GetComponent<IDamageable>();
-        }
-
+        playerTransform = GameObject.FindWithTag("Player").transform;
         navMeshAgent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
-        col = GetComponent<Collider>();
-
-        // deixa a movimentação normal
-        rb.isKinematic = true;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
+
 
     void Update()
     {
-        if (isDead) return;
-
         switch (currentState)
         {
-            case State.Idle: HandleIdleState(); break;
-            case State.Chase: HandleChaseState(); break;
-            case State.Attack: HandleAttackState(); break;
+            case State.Idle:
+                HandleIdleState();
+                break;
+            case State.Chase:
+                HandleChaseState();
+                break;
+            case State.Attack:
+                HandleAttackState();
+                break;
+            case State.Dead:
+                HandleDeadState();
+                break;
         }
+
+        DebugDrawCircle(transform.position, distanceToEngage, Color.yellow);  // Engage
+        DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
+        DebugDrawCircle(transform.position, distanceToDisengage, Color.blue);    // Disengage
+        //Debug.Log(Vector3.Distance(transform.position, playerTransform.position));
     }
 
     private void HandleIdleState()
     {
-        if (IsAgentReady())
-            navMeshAgent.isStopped = true;
+        // Logic for Idle state
+        //Debug.Log("Enemy is idle.");
+        navMeshAgent.isStopped = true;
+        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage && !isAttacking)
+        {
 
-        if (playerTransform == null) return;
-
-        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage)
             currentState = State.Chase;
+        }
     }
-
     private void HandleChaseState()
     {
-        if (playerTransform == null)
+        // Logic for Chase state
+        //Debug.Log("Enemy is chasing the player.");
+        navMeshAgent.SetDestination(playerTransform.position);
+        navMeshAgent.isStopped = false;
+
+        // Trocar para Attack se estiver perto o suficiente
+        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToAttack)
         {
-            currentState = State.Idle;
-            return;
-        }
-
-        if (IsAgentReady())
-        {
-            navMeshAgent.isStopped = false;
-            navMeshAgent.SetDestination(playerTransform.position);
-        }
-
-        float dist = Vector3.Distance(transform.position, playerTransform.position);
-
-        if (dist < distanceToAttack)
             currentState = State.Attack;
-        else if (dist > distanceToDisengage)
+        }
+        // Trocar para Idle se estiver longe o bastante
+        else if (Vector3.Distance(transform.position, playerTransform.position) > distanceToDisengage)
+        {
             currentState = State.Idle;
+        }
     }
-
     private void HandleAttackState()
     {
-        if (isAttacking || playerTransform == null) return;
-
-        if (IsAgentReady())
-            navMeshAgent.isStopped = true;
-
-        StartCoroutine(AttackRoutine());
-    }
-
-    private IEnumerator AttackRoutine()
-    {
+        // Logic for Attack state
+        // Debug.Log("Enemy is attacking the player.");
+        navMeshAgent.isStopped = true;
+        WaitForSecondsRealtime wait = new WaitForSecondsRealtime(attackSpeed);
+        //TODO Insirir aqui a lógica de ataque (ex: reduzir vida do jogador)
+        StartCoroutine(AttackCooldown(wait));
+        currentState = State.Idle; // Seta para Idle após o ataque para evitar multiplos ataques seguidos
         isAttacking = true;
+    }
 
-        Attack(attackDamage);
+    private void HandleDeadState()
+    {
+        // Logic for Dead state
+        Debug.Log("Enemy is dead.");
+        navMeshAgent.isStopped = true;
+        rb.constraints = RigidbodyConstraints.None;
 
-        yield return new WaitForSeconds(attackSpeed);
-
+    }
+    
+        private IEnumerator AttackCooldown(WaitForSecondsRealtime wait)
+    {
+        Debug.Log("Enemy is cooling down after attack.");
+        yield return wait;
+        Debug.Log("Enemy finished cooldown.");
         isAttacking = false;
-
-        if (!isDead && playerTransform != null)
-            currentState = State.Chase;
     }
 
-    // ==========================================================
-    // DAMAGE NORMAL
-    // ==========================================================
+    private void DebugDrawCircle(Vector3 center, float radius, Color color, int segments = 50)
+    {   // Draw a circle in the XZ plane for visualization
+        float angleStep = 360f / segments;
+        Vector3 previousPoint = center + new Vector3(radius, 0, 0);
 
-    public void GetHit(int damage)
-    {
-        if (isDead) return;
-
-        health -= damage;
-
-        if (health <= 0)
-            Die();
-    }
-
-    // ==========================================================
-    // STRONG PUNCH (VERSÃO QUE FUNCIONA)
-    // ==========================================================
-
-    public void TakeStrongPunch(Vector3 direction)
-    {
-        if (isDead) return;
-        isDead = true;
-
-        currentState = State.Dead;
-        OnEnemyDied?.Invoke(this);
-
-        // DESATIVA O NAVMESH
-        if (navMeshAgent != null)
+        for (int i = 1; i <= segments; i++)
         {
-            if (navMeshAgent.isOnNavMesh)
-                navMeshAgent.isStopped = true;
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            Vector3 newPoint = center + new Vector3(
+                Mathf.Cos(angle) * radius,
+                0,
+                Mathf.Sin(angle) * radius
+            );
 
-            navMeshAgent.enabled = false;
+            Debug.DrawLine(previousPoint, newPoint, color);
+            previousPoint = newPoint;
         }
-
-        
-        rb.isKinematic = false;
-        rb.useGravity = true;
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        // DIREÇÃO + LEVE UP
-        Vector3 launchDir = (direction.normalized + Vector3.up * 0.7f).normalized;
-
-       
-        rb.AddForce(launchDir * strongPunchLaunchForce * 0.6f, ForceMode.VelocityChange);
-
-
-        rb.AddTorque(Random.insideUnitSphere * 10f, ForceMode.Impulse);
-
-        // só desativa o collider depois que ele já voou longe
-        StartCoroutine(DisableColliderLater());
-
-        Destroy(gameObject, 4f);
-    }
-
-    private IEnumerator DisableColliderLater()
-    {
-        yield return new WaitForSeconds(2f);
-        if (col != null)
-            col.enabled = false;
-    }
-
-    // ==========================================================
-    // MORTE NORMAL
-    // ==========================================================
-
-    public void Die()
-    {
-        if (isDead) return;
-
-        isDead = true;
-        currentState = State.Dead;
-
-        OnEnemyDied?.Invoke(this);
-
-        if (navMeshAgent != null)
-        {
-            if (navMeshAgent.isOnNavMesh)
-                navMeshAgent.isStopped = true;
-
-            navMeshAgent.enabled = false;
-        }
-
-        rb.isKinematic = false;
-        rb.useGravity = true;
-
-        rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
-        rb.AddTorque(Random.insideUnitSphere * deathTorqueForce, ForceMode.Impulse);
-
-        Destroy(gameObject, 3f);
-    }
-
-    void Attack(int damage)
-    {
-        if (playerDamageable != null)
-            playerDamageable.GetHit(damage);
-    }
-
-    private bool IsAgentReady()
-    {
-        return navMeshAgent != null &&
-               navMeshAgent.enabled &&
-               navMeshAgent.isOnNavMesh;
     }
 }
