@@ -10,15 +10,27 @@ using UnityEngine.AI;
 [RequireComponent(typeof(Animator))]
 public class EnemyAI : MonoBehaviour, IDamageable
 {
+    public static System.Action<EnemyAI> OnEnemyDied;
 
-    [SerializeField] private float distanceToEngage = 30f;
-    [SerializeField] private float distanceToDisengage = 40f;
-    [SerializeField] private float distanceToAttack = 8f;
-    [SerializeField] private float attackSpeed = 2f;
+    [Header("Configurações")]
+    [SerializeField] private float distanceToEngage = 15f;
+    [SerializeField] private float distanceToDisengage = 20f;
+    [SerializeField] private float distanceToAttack = 4f;
+    [SerializeField] private float attackSpeed = .6f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] public int health = 30;
+
+    [Header("Death Physics")]
     [SerializeField] private float deathUpwardForce = 10f;
     [SerializeField] private float deathTorqueForce = 5f;
+
+    [Header("Strong Punch")]
+    [SerializeField] private float strongPunchLaunchForce = 420f;
+  
+
+    private bool isAttacking = false;
+    private bool isDead = false;
+
     private Transform playerTransform;
     private IDamageable playerDamageable;
     private NavMeshAgent navMeshAgent;
@@ -31,7 +43,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
         Attack,
         Dead,
     }
+    private Collider col;
 
+    private enum State { Idle, Chase, Attack, Dead }
     private State currentState;
     private float pathUpdateDeadline = 0;
     private float pathUpdateDelay = 0.2f;
@@ -40,32 +54,35 @@ public class EnemyAI : MonoBehaviour, IDamageable
     void Start()
     {
         currentState = State.Idle;
-        playerTransform = GameObject.FindWithTag("Player").transform;
-        playerDamageable = GameObject.FindWithTag("Player").GetComponent<IDamageable>();
+
+        GameObject playerGO = GameObject.FindWithTag("Player");
+        if (playerGO != null)
+        {
+            playerTransform = playerGO.transform;
+            playerDamageable = playerGO.GetComponent<IDamageable>();
+        }
+
         navMeshAgent = GetComponent<NavMeshAgent>();
         navMeshAgent.stoppingDistance = distanceToAttack - 0.1f;
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
         animator = GetComponent<Animator>();
-    }
+    
+        col = GetComponent<Collider>();
 
+        // deixa a movimentação normal
+        rb.isKinematic = true;
+    }
 
     void FixedUpdate()
     {
+        if (isDead) return;
+
         switch (currentState)
         {
-            case State.Idle:
-                HandleIdleState();
-                break;
-            case State.Chase:
-                HandleChaseState();
-                break;
-            case State.Attack:
-                HandleAttackState();
-                break;
-            case State.Dead:
-                HandleDeadState();
-                break;
+            case State.Idle: HandleIdleState(); break;
+            case State.Chase: HandleChaseState(); break;
+            case State.Attack: HandleAttackState(); break;
         }
         Debug.Log("Velocidade desejada" + navMeshAgent.desiredVelocity.magnitude);
         Debug.Log("Velocidade atual" + navMeshAgent.velocity.magnitude);
@@ -81,16 +98,15 @@ public class EnemyAI : MonoBehaviour, IDamageable
     {
         // Logic for Idle state
         // Debug.Log("Enemy is idle.");
-        navMeshAgent.isStopped = true;
+        if (IsAgentReady())
+            navMeshAgent.isStopped = true;
         animator.SetFloat("speed", navMeshAgent.velocity.magnitude);
-        // print("Distancia ao jogador: " + Vector3.Distance(transform.position, playerTransform.position));
-        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage)
-        {
+        if (playerTransform == null) return;
 
+        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage)
             currentState = State.Chase;
-            return;
-        }
     }
+
     private void HandleChaseState()
     {
         // Logic for Chase state
@@ -106,14 +122,30 @@ public class EnemyAI : MonoBehaviour, IDamageable
             return;
         }
         // Trocar para Idle se estiver longe o bastante
-        else if (Vector3.Distance(transform.position, playerTransform.position) > distanceToDisengage)
+        else if (Vector3.Distance(transform.position, playerTransform.position) > distanceToDisengage || playerTransform == null)
         {
             currentState = State.Idle;
             return;
         }
+
+        if (IsAgentReady())
+        {
+            navMeshAgent.isStopped = false;
+            navMeshAgent.SetDestination(playerTransform.position);
+        }
+
+        float dist = Vector3.Distance(transform.position, playerTransform.position);
+
+        if (dist < distanceToAttack)
+            currentState = State.Attack;
+        else if (dist > distanceToDisengage)
+            currentState = State.Idle;
     }
+
     private void HandleAttackState()
     {
+
+        if (playerTransform == null) return;
 
         animator.SetBool("isInRange",true);
         // Troca para Chase se o jogador estiver longe para o ataque
@@ -125,29 +157,11 @@ public class EnemyAI : MonoBehaviour, IDamageable
         }
         // Logic for Attack state
         navMeshAgent.isStopped = true;
-        WaitForSecondsRealtime wait = new WaitForSecondsRealtime(attackSpeed);
         LookAtTarget();
         if (!isAttacking)
         {
-            Debug.Log("Enemy is attacking the player.");
-            isAttacking = true;
-            StartCoroutine(AttackCoroutine(wait));
+            StartCoroutine(AttackRoutine());            
         }
-    }
-
-    private void HandleDeadState()
-    {
-        // Logic for Dead state
-        //Debug.Log("Enemy is dead.");
-        navMeshAgent.isStopped = true;
-        rb.constraints = RigidbodyConstraints.None;
-
-        // Setando animação de idle (sem movimento)
-        if (animator.GetBool("isWalking") == true)
-        {
-            animator.SetBool("isWalking", false);
-        }
-
     }
     
         private IEnumerator AttackCoroutine(WaitForSecondsRealtime wait)
@@ -159,71 +173,106 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     }
 
-    private void DebugDrawCircle(Vector3 center, float radius, Color color, int segments = 50)
-    {   // Draw a circle in the XZ plane for visualization
-        float angleStep = 360f / segments;
-        Vector3 previousPoint = center + new Vector3(radius, 0, 0);
-
-        for (int i = 1; i <= segments; i++)
-        {
-            float angle = i * angleStep * Mathf.Deg2Rad;
-            Vector3 newPoint = center + new Vector3(
-                Mathf.Cos(angle) * radius,
-                0,
-                Mathf.Sin(angle) * radius
-            );
-
-            Debug.DrawLine(previousPoint, newPoint, color);
-            previousPoint = newPoint;
-        }
-    }
+    // ==========================================================
+    // DAMAGE NORMAL
+    // ==========================================================
 
     public void GetHit(int damage)
     {
-        //Debug.Log("Enemy got hit for " + damage + " damage.");
-        if (currentState == State.Dead)
-            return;
+        if (isDead) return;
+
         health -= damage;
+
         if (health <= 0)
-        {
             Die();
-        }
     }
+
+    // ==========================================================
+    // STRONG PUNCH (VERSÃO QUE FUNCIONA)
+    // ==========================================================
+
+    public void TakeStrongPunch(Vector3 direction)
+    {
+        if (isDead) return;
+        isDead = true;
+
+        currentState = State.Dead;
+        OnEnemyDied?.Invoke(this);
+
+        // DESATIVA O NAVMESH
+        if (navMeshAgent != null)
+        {
+            if (navMeshAgent.isOnNavMesh)
+                navMeshAgent.isStopped = true;
+
+            navMeshAgent.enabled = false;
+        }
+
+        
+        rb.isKinematic = false;
+        rb.useGravity = true;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        // DIREÇÃO + LEVE UP
+        Vector3 launchDir = (direction.normalized + Vector3.up * 0.7f).normalized;
+
+       
+        rb.AddForce(launchDir * strongPunchLaunchForce * 0.6f, ForceMode.VelocityChange);
+
+
+        rb.AddTorque(Random.insideUnitSphere * 10f, ForceMode.Impulse);
+
+        // só desativa o collider depois que ele já voou longe
+        StartCoroutine(DisableColliderLater());
+
+        Destroy(gameObject, 4f);
+    }
+
+    private IEnumerator DisableColliderLater()
+    {
+        yield return new WaitForSeconds(2f);
+        if (col != null)
+            col.enabled = false;
+    }
+
+    // ==========================================================
+    // MORTE NORMAL
+    // ==========================================================
 
     public void Die()
     {
+        if (isDead) return;
+
+        isDead = true;
         currentState = State.Dead;
-        
-        // Libera todas as constraints do Rigidbody
-        rb.constraints = RigidbodyConstraints.None;
-        
-        // Desativa o NavMeshAgent para não interferir com a física
+
+        OnEnemyDied?.Invoke(this);
+
         if (navMeshAgent != null)
         {
+            if (navMeshAgent.isOnNavMesh)
+                navMeshAgent.isStopped = true;
+
             navMeshAgent.enabled = false;
         }
-        
-        // Aplica força para cima
+
+        rb.isKinematic = false;
+        rb.useGravity = true;
+
         rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
-        
-        // Aplica torque aleatório para girar
-        Vector3 randomTorque = new Vector3(
-            Random.Range(-deathTorqueForce, deathTorqueForce),
-            Random.Range(-deathTorqueForce, deathTorqueForce),
-            Random.Range(-deathTorqueForce, deathTorqueForce)
-        );
-        rb.AddTorque(randomTorque, ForceMode.Impulse);
-        
-        // Destruir o objeto após alguns segundos
+        rb.AddTorque(Random.insideUnitSphere * deathTorqueForce, ForceMode.Impulse);
+
         Destroy(gameObject, 3f);
     }
 
     public void Attack(int damage)
     {
         if (playerDamageable != null)
-        {
             playerDamageable.GetHit(damage);
-        }
     }
 
     private void LookAtTarget()
@@ -242,5 +291,12 @@ public class EnemyAI : MonoBehaviour, IDamageable
             pathUpdateDeadline = Time.time + pathUpdateDelay;
             navMeshAgent.SetDestination(playerTransform.position);
         }
+    }
+
+    private bool IsAgentReady()
+    {
+        return navMeshAgent != null &&
+               navMeshAgent.enabled &&
+               navMeshAgent.isOnNavMesh;
     }
 }
