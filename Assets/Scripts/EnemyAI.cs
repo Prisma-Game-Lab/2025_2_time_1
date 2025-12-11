@@ -165,6 +165,14 @@ public class EnemyAI : MonoBehaviour, IDamageable
         isAttacking = false;
 
     }
+        private void HandleDeadState()
+    {
+        // Logic for Dead state
+        //Debug.Log("Enemy is dead.");
+        navMeshAgent.isStopped = true;
+        rb.constraints = RigidbodyConstraints.None;
+
+    }
 
     // ==========================================================
     // DAMAGE NORMAL
@@ -238,8 +246,6 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     public void Die()
     {
-        if (isDead) return;
-
         isDead = true;
         currentState = State.Dead;
 

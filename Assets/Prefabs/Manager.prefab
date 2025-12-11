@@ -1194,7 +1194,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 08bb03c4d1ab1094894c38fe87b5174d, type: 2}
   m_CullingMode: 2
   m_UpdateMode: 1
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_WarningMessage: 
@@ -1265,12 +1265,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   distanceToEngage: 30
   distanceToDisengage: 40
-  distanceToAttack: 5
+  distanceToAttack: 8
   attackSpeed: 2
   attackDamage: 10
+  attackKnockbackForce: 5
   health: 30
   deathUpwardForce: 10
   deathTorqueForce: 5
+  strongPunchLaunchForce: 420
 --- !u!1 &9093546460296963824
 GameObject:
   m_ObjectHideFlags: 0
