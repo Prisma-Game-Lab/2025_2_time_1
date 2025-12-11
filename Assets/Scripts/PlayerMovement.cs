@@ -91,6 +91,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private float jumpCheckCooldown = 0.5f;
     private float jumpCheckTimer = 0f;
 
+    [SerializeField] int layerMask;
+
     private HoldableObject heldObject;
     private bool isAttacking = false;
     private PlayerSounds playerSounds;
@@ -508,8 +510,21 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         float currentSpeed = moveSpeed;
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
             currentSpeed *= sprintMultiplier;
-
+        float wallrunBoost = 5;
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
+        LayerMask mask = LayerMask.GetMask("Wall");
+
+
+        if ((Physics.Raycast(transform.position, transform.right,5,mask.value)) || (Physics.Raycast(transform.position, -transform.right, 5, mask.value)))
+        {
+            print("wall");
+            if (!isGrounded)
+            {
+                print("wallrun");
+                move = move * wallrunBoost;
+            }
+            
+        }
 
         float vSpeed = rb.velocity.y;
         jumpCheckTimer -= Time.deltaTime;
@@ -520,8 +535,12 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         rb.velocity = move * currentSpeed + new Vector3(0, vSpeed, 0);
 
-        float extraGravityMultiplier = 2f;
-        rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
+        if (!isGrounded)
+        {
+            float extraGravityMultiplier = 2f;
+            rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
+        }
+        
     }
 
     private void OnDisable()
