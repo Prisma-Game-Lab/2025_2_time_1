@@ -147,10 +147,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3ce72f6a7c1fe8149b1550fac9aaa6b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  distanceToEngage: 15
-  distanceToDisengage: 20
+  distanceToEngage: 30
+  distanceToDisengage: 50
   distanceToAttack: 4
   attackSpeed: 2
+  attackDamage: 10
+  health: 30
+  deathUpwardForce: 10
+  deathTorqueForce: 5
 --- !u!54 &1013538672907036354
 Rigidbody:
   m_ObjectHideFlags: 0
