@@ -16,7 +16,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float distanceToEngage = 15f;
     [SerializeField] private float distanceToDisengage = 20f;
     [SerializeField] private float distanceToAttack = 4f;
-    [SerializeField] private float attackSpeed = .6f;
+    [SerializeField] private float attackSpeed = 2f;
     [SerializeField] private int attackDamage = 10;
     [SerializeField] public int health = 30;
 
@@ -36,20 +36,12 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     private Animator animator;
-    private enum State
-    {
-        Idle,
-        Chase,
-        Attack,
-        Dead,
-    }
     private Collider col;
 
     private enum State { Idle, Chase, Attack, Dead }
     private State currentState;
     private float pathUpdateDeadline = 0;
     private float pathUpdateDelay = 0.2f;
-    private bool isAttacking = false;
 
     void Start()
     {
@@ -84,16 +76,13 @@ public class EnemyAI : MonoBehaviour, IDamageable
             case State.Chase: HandleChaseState(); break;
             case State.Attack: HandleAttackState(); break;
         }
-        Debug.Log("Velocidade desejada" + navMeshAgent.desiredVelocity.magnitude);
-        Debug.Log("Velocidade atual" + navMeshAgent.velocity.magnitude);
-
         DebugDrawCircle(transform.position, distanceToEngage, Color.yellow);  // Engage
         DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
         DebugDrawCircle(transform.position, distanceToDisengage, Color.blue);    // Disengage
         //Debug.Log(Vector3.Distance(transform.position, playerTransform.position));
         //Debug.Log(animator.GetBool("isWalking"));
     }
-
+    
     private void HandleIdleState()
     {
         // Logic for Idle state
@@ -160,15 +149,16 @@ public class EnemyAI : MonoBehaviour, IDamageable
         LookAtTarget();
         if (!isAttacking)
         {
-            StartCoroutine(AttackRoutine());            
+            isAttacking = true;
+            StartCoroutine(AttackCoroutine(attackSpeed));            
         }
     }
     
-        private IEnumerator AttackCoroutine(WaitForSecondsRealtime wait)
+        private IEnumerator AttackCoroutine(float waitTime)
     {
         animator.SetTrigger("attack");
         Attack(attackDamage);
-        yield return wait;
+        yield return new WaitForSecondsRealtime(waitTime);
         isAttacking = false;
 
     }
@@ -298,5 +288,24 @@ public class EnemyAI : MonoBehaviour, IDamageable
         return navMeshAgent != null &&
                navMeshAgent.enabled &&
                navMeshAgent.isOnNavMesh;
+    }
+
+        private void DebugDrawCircle(Vector3 center, float radius, Color color, int segments = 50)
+    {   // Draw a circle in the XZ plane for visualization
+        float angleStep = 360f / segments;
+        Vector3 previousPoint = center + new Vector3(radius, 0, 0);
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            Vector3 newPoint = center + new Vector3(
+                Mathf.Cos(angle) * radius,
+                0,
+                Mathf.Sin(angle) * radius
+            );
+
+            Debug.DrawLine(previousPoint, newPoint, color);
+            previousPoint = newPoint;
+        }
     }
 }
