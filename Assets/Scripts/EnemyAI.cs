@@ -2,8 +2,12 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
+// Para o Script funcionar, a cena deve ter um NavMesh criado e feito o bake com NavMeshSurfacee agentType Enemy 
+// e o inimigo deve ter um componente NavMeshAgent anexado.
+
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Animator))]
 public class EnemyAI : MonoBehaviour, IDamageable
 {
     public static System.Action<EnemyAI> OnEnemyDied;
@@ -12,8 +16,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float distanceToEngage = 15f;
     [SerializeField] private float distanceToDisengage = 20f;
     [SerializeField] private float distanceToAttack = 4f;
-    [SerializeField] private float attackSpeed = .6f;
+    [SerializeField] private float attackSpeed = 2f;
     [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackKnockbackForce = 5f;
     [SerializeField] public int health = 30;
 
     [Header("Death Physics")]
@@ -29,12 +34,16 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private Transform playerTransform;
     private IDamageable playerDamageable;
+    private Rigidbody playerRb;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
+    private Animator animator;
     private Collider col;
 
     private enum State { Idle, Chase, Attack, Dead }
     private State currentState;
+    private float pathUpdateDeadline = 0;
+    private float pathUpdateDelay = 0.2f;
 
     void Start()
     {
@@ -48,14 +57,18 @@ public class EnemyAI : MonoBehaviour, IDamageable
         }
 
         navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.stoppingDistance = distanceToAttack - 0.1f;
         rb = GetComponent<Rigidbody>();
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        animator = GetComponent<Animator>();
+    
         col = GetComponent<Collider>();
 
         // deixa a movimentação normal
         rb.isKinematic = true;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (isDead) return;
 
@@ -64,14 +77,22 @@ public class EnemyAI : MonoBehaviour, IDamageable
             case State.Idle: HandleIdleState(); break;
             case State.Chase: HandleChaseState(); break;
             case State.Attack: HandleAttackState(); break;
+            case State.Dead: HandleDeadState(); break;
         }
+        DebugDrawCircle(transform.position, distanceToEngage, Color.yellow);  // Engage
+        DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
+        DebugDrawCircle(transform.position, distanceToDisengage, Color.blue);    // Disengage
+        //Debug.Log(Vector3.Distance(transform.position, playerTransform.position));
+        //Debug.Log(animator.GetBool("isWalking"));
     }
-
+    
     private void HandleIdleState()
     {
+        // Logic for Idle state
+        // Debug.Log("Enemy is idle.");
         if (IsAgentReady())
             navMeshAgent.isStopped = true;
-
+        animator.SetFloat("speed", navMeshAgent.velocity.magnitude);
         if (playerTransform == null) return;
 
         if (Vector3.Distance(transform.position, playerTransform.position) < distanceToEngage)
@@ -80,7 +101,20 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private void HandleChaseState()
     {
-        if (playerTransform == null)
+        // Logic for Chase state
+        // Debug.Log("Enemy is chasing.");
+        // navMeshAgent.SetDestination(playerTransform.position);
+        UpdatePath();
+        navMeshAgent.isStopped = false;
+        animator.SetFloat("speed", navMeshAgent.velocity.magnitude);
+        // Trocar para Attack se estiver perto o suficiente
+        if (Vector3.Distance(transform.position, playerTransform.position) < distanceToAttack)
+        {
+            currentState = State.Attack;
+            return;
+        }
+        // Trocar para Idle se estiver longe o bastante
+        else if (Vector3.Distance(transform.position, playerTransform.position) > distanceToDisengage || playerTransform == null)
         {
             currentState = State.Idle;
             return;
@@ -102,26 +136,42 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private void HandleAttackState()
     {
-        if (isAttacking || playerTransform == null) return;
 
-        if (IsAgentReady())
-            navMeshAgent.isStopped = true;
+        if (playerTransform == null) return;
 
-        StartCoroutine(AttackRoutine());
+        animator.SetBool("isInRange",true);
+        // Troca para Chase se o jogador estiver longe para o ataque
+        if (Vector3.Distance(transform.position, playerTransform.position) > distanceToAttack)
+        {
+            currentState = State.Chase;
+            animator.SetBool("isInRange",false);
+            return;
+        }
+        // Logic for Attack state
+        navMeshAgent.isStopped = true;
+        LookAtTarget();
+        if (!isAttacking)
+        {
+            isAttacking = true;
+            StartCoroutine(AttackCoroutine(attackSpeed));            
+        }
     }
-
-    private IEnumerator AttackRoutine()
+    
+        private IEnumerator AttackCoroutine(float waitTime)
     {
-        isAttacking = true;
-
+        animator.SetTrigger("attack");
         Attack(attackDamage);
-
-        yield return new WaitForSeconds(attackSpeed);
-
+        yield return new WaitForSecondsRealtime(waitTime);
         isAttacking = false;
 
-        if (!isDead && playerTransform != null)
-            currentState = State.Chase;
+    }
+        private void HandleDeadState()
+    {
+        // Logic for Dead state
+        //Debug.Log("Enemy is dead.");
+        navMeshAgent.isStopped = true;
+        rb.constraints = RigidbodyConstraints.None;
+
     }
 
     // ==========================================================
@@ -196,8 +246,6 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     public void Die()
     {
-        if (isDead) return;
-
         isDead = true;
         currentState = State.Dead;
 
@@ -220,10 +268,28 @@ public class EnemyAI : MonoBehaviour, IDamageable
         Destroy(gameObject, 3f);
     }
 
-    void Attack(int damage)
+    public void Attack(int damage)
     {
         if (playerDamageable != null)
             playerDamageable.GetHit(damage);
+    }
+
+    private void LookAtTarget()
+    {
+        Vector3 lookPos = playerTransform.position - transform.position;
+        lookPos.y = 0;
+        Quaternion rotation = Quaternion.LookRotation(lookPos);
+        transform.rotation = Quaternion.Slerp(transform.rotation,rotation,0.2f);
+
+    }
+
+    private void UpdatePath()
+    {
+        if (Time.time >= pathUpdateDeadline)
+        {
+            pathUpdateDeadline = Time.time + pathUpdateDelay;
+            navMeshAgent.SetDestination(playerTransform.position);
+        }
     }
 
     private bool IsAgentReady()
@@ -231,5 +297,24 @@ public class EnemyAI : MonoBehaviour, IDamageable
         return navMeshAgent != null &&
                navMeshAgent.enabled &&
                navMeshAgent.isOnNavMesh;
+    }
+
+        private void DebugDrawCircle(Vector3 center, float radius, Color color, int segments = 50)
+    {   // Draw a circle in the XZ plane for visualization
+        float angleStep = 360f / segments;
+        Vector3 previousPoint = center + new Vector3(radius, 0, 0);
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = i * angleStep * Mathf.Deg2Rad;
+            Vector3 newPoint = center + new Vector3(
+                Mathf.Cos(angle) * radius,
+                0,
+                Mathf.Sin(angle) * radius
+            );
+
+            Debug.DrawLine(previousPoint, newPoint, color);
+            previousPoint = newPoint;
+        }
     }
 }

@@ -274,9 +274,18 @@ MonoBehaviour:
     m_Id: 35cf30da-5902-41b1-8cb5-6d7a277479f9
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 398d91f6-8607-4923-9c35-45fe021067b7
+      m_Path: <Mouse>/rightButton
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Heavy Attack
+      m_Flags: 0
     m_Flags: 0
   attackDamage: 10
+  heavyAttackDamage: 25
   attackCooldown: 0.5
   heavyAttackCooldown: 1.2
   lightAttackForce: 20
@@ -288,6 +297,7 @@ MonoBehaviour:
   bloodEffect: {fileID: 0}
   cameraImpactBack: 0.3
   cameraImpactSpeed: 4
+  health: 100
 --- !u!114 &4775366469624218330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -398,7 +408,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ae912d91fa9f67429c7cb627acb762d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSound: {fileID: 8300000, guid: f8b25cf2f9bc4724486a7328c893f9d6, type: 3}
+  walkSound: {fileID: 8300000, guid: ae5463969d915074ea3d761d8cd12d59, type: 3}
 --- !u!82 &1196751432225484471
 AudioSource:
   m_ObjectHideFlags: 0

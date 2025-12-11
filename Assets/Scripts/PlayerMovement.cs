@@ -80,6 +80,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private Rigidbody rb;
     private Vector2 moveInput;
     private Vector2 lookInput;
+    private GameObject armsGameObject;
+    private Animator armsAnimator;
     private float pitch;
     private float yaw;
     private bool isGrounded;
@@ -94,6 +96,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private HoldableObject heldObject;
     private bool isAttacking = false;
     private PlayerSounds playerSounds;
+    private float deathUpwardForce = 10f;
+    private float deathBackwardForce = 15f;
+    private float deathTorqueForce = 5f;
 
     private void Awake()
     {
@@ -126,6 +131,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         playerSounds = GetComponent<PlayerSounds>();
 
+        armsGameObject = GameObject.FindGameObjectWithTag("Arms");
+        armsAnimator = armsGameObject.GetComponent<Animator>();
         anim = GetComponentInChildren<Animator>();
 
         OnComboChanged?.Invoke(comboCount);
@@ -299,6 +306,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     {
         if (cooldownTimer > 0) yield break;
         isAttacking = true;
+        armsAnimator.SetTrigger("attackJab");
 
         anim?.SetTrigger("Jab");
 
@@ -307,6 +315,20 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         ApplyAttack(force, false, attackDamage);
         cooldownTimer = cooldown;
 
+        isAttacking = false;
+    }
+
+    private IEnumerator HandleHeavyAttack()
+    {
+        if (cooldownTimer > 0) yield break;
+        isAttacking = true;
+        armsAnimator.SetTrigger("attackStraight");
+        yield return StartCoroutine(CameraImpact(() =>
+        {
+            ApplyAttack(heavyAttackForce, true, heavyAttackDamage);
+        }));
+
+        cooldownTimer = heavyAttackCooldown;
         isAttacking = false;
     }
 
@@ -551,6 +573,18 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     public void Die()
     {
         Debug.Log("Player has died.");
+        rb.constraints = RigidbodyConstraints.None;
+        rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
+        // TODO: Fazer ele ser lançado para tras ????
+        // Aplica torque aleatório para girar
+        Vector3 randomTorque = new Vector3(
+            Random.Range(-deathTorqueForce, deathTorqueForce),
+            Random.Range(-deathTorqueForce, deathTorqueForce),
+            Random.Range(-deathTorqueForce, deathTorqueForce)
+        );
+        rb.AddTorque(randomTorque, ForceMode.Impulse);
+        OnDisable();
+        //TODO: Implement death behavior (e.g., respawn, game over screen)
     }
 
     public int GetComboCount() => comboCount;
