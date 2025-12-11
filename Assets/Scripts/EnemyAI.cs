@@ -18,6 +18,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
     [SerializeField] private float distanceToAttack = 4f;
     [SerializeField] private float attackSpeed = 2f;
     [SerializeField] private int attackDamage = 10;
+    [SerializeField] private float attackKnockbackForce = 5f;
     [SerializeField] public int health = 30;
 
     [Header("Death Physics")]
@@ -33,6 +34,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private Transform playerTransform;
     private IDamageable playerDamageable;
+    private Rigidbody playerRb;
     private NavMeshAgent navMeshAgent;
     private Rigidbody rb;
     private Animator animator;
@@ -75,6 +77,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
             case State.Idle: HandleIdleState(); break;
             case State.Chase: HandleChaseState(); break;
             case State.Attack: HandleAttackState(); break;
+            case State.Dead: HandleDeadState(); break;
         }
         DebugDrawCircle(transform.position, distanceToEngage, Color.yellow);  // Engage
         DebugDrawCircle(transform.position, distanceToAttack, Color.red);      // Attack
