@@ -1529,42 +1529,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1192987873540147195, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2587069889009748362, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_Speed
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 2587069889009748362, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_AutoBraking
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2587069889009748362, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_StoppingDistance
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2929293759860734176, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: distanceToAttack
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8061820741911627671, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8199755222266432563, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 08bb03c4d1ab1094894c38fe87b5174d, type: 2}
-    - target: {fileID: 8199755222266432563, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_UpdateMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8199755222266432563, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
-      propertyPath: m_ApplyRootMotion
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8290146835111788812, guid: d1508c803cde86c498ac68d8d151f38d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -37.4
