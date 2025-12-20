@@ -966,78 +966,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: jumpForce
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: moveSpeed
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: bloodEffect
-      value: 
-      objectReference: {fileID: 5266236092533612076, guid: eae7de31e06f71142af4ada91c8670cc, type: 3}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: hitsPerCharge
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: cameraImpactBack
-      value: 0.35
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackDelay
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackForce
-      value: 35
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: cameraImpactSpeed
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackAction.m_Name
-      value: Heavy Attack
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: chargeAttackAction.m_Name
-      value: Charge Attack
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackAction.m_SingletonActionBindings.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: chargeAttackAction.m_SingletonActionBindings.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackAction.m_SingletonActionBindings.Array.data[0].m_Id
-      value: 26f45669-bd0d-4881-b71d-90fe4adb2ac1
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: chargeAttackAction.m_SingletonActionBindings.Array.data[0].m_Id
-      value: 1da16fe6-6383-4b74-9b99-40f2e6f4190d
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackAction.m_SingletonActionBindings.Array.data[0].m_Path
-      value: <Mouse>/rightButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: chargeAttackAction.m_SingletonActionBindings.Array.data[0].m_Path
-      value: <Mouse>/rightButton
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: heavyAttackAction.m_SingletonActionBindings.Array.data[0].m_Action
-      value: Heavy Attack
-      objectReference: {fileID: 0}
-    - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: chargeAttackAction.m_SingletonActionBindings.Array.data[0].m_Action
-      value: Charge Attack
-      objectReference: {fileID: 0}
     - target: {fileID: 3495862100433709571, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.686264
@@ -1079,36 +1007,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4278225140968970905, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: m_Cameras.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4278225140968970905, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_Cameras.Array.data[0]
-      value: 
-      objectReference: {fileID: 1566457331}
-    - target: {fileID: 4278225140968970905, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: m_Cameras.Array.data[1]
       value: 
       objectReference: {fileID: 1566457331}
     - target: {fileID: 4804683024767415657, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 4804683024767415657, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8033230483897615822, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      propertyPath: m_Material
-      value: 
-      objectReference: {fileID: 13400000, guid: dcbab973be79504448fefbc67c2c1ef4, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8361297906051278594, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1901012609}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 434a08b076a204642aa9587367fc8017, type: 3}
 --- !u!1 &599910530
 GameObject:
@@ -1432,10 +1341,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7202724871186591217, guid: cb28a3380714a524e8ff8e9e494a34ff, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1465803242}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cb28a3380714a524e8ff8e9e494a34ff, type: 3}
 --- !u!1 &723589999
 GameObject:
@@ -3193,32 +3099,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &1465803238 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7202724871186591217, guid: cb28a3380714a524e8ff8e9e494a34ff, type: 3}
-  m_PrefabInstance: {fileID: 715846278}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &1465803242
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1465803238}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d7399e66b5c7690499540a7dbb6d88b2, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!43 &1485172291
 Mesh:
   m_ObjectHideFlags: 0
@@ -3669,32 +3549,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1901012605 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8361297906051278594, guid: 434a08b076a204642aa9587367fc8017, type: 3}
-  m_PrefabInstance: {fileID: 567407375}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &1901012609
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1901012605}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d7399e66b5c7690499540a7dbb6d88b2, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!43 &1936943833
 Mesh:
   m_ObjectHideFlags: 0

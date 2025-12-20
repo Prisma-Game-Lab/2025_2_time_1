@@ -356,7 +356,7 @@ PrefabInstance:
     - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: bloodEffect
       value: 
-      objectReference: {fileID: 5266236092533612076, guid: eae7de31e06f71142af4ada91c8670cc, type: 3}
+      objectReference: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
     - target: {fileID: 726902653910098704, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: cameraImpactBack
       value: 0.35
