@@ -340,6 +340,10 @@ PrefabInstance:
       value: 1289
       objectReference: {fileID: 0}
     - target: {fileID: 1518941478533998459, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1518941478533998459, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
       propertyPath: m_TagString
       value: Wall
       objectReference: {fileID: 0}
@@ -500,8 +504,16 @@ PrefabInstance:
       value: 6869
       objectReference: {fileID: 0}
     - target: {fileID: 5825041285635928996, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5825041285635928996, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
       propertyPath: m_TagString
       value: Wall
+      objectReference: {fileID: 0}
+    - target: {fileID: 6086929637424347815, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6086929637424347815, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
       propertyPath: m_TagString
@@ -560,6 +572,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1126442004}
     - target: {fileID: 8537058166762597235, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8537058166762597235, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
       propertyPath: m_TagString
       value: Wall
       objectReference: {fileID: 0}
@@ -583,6 +599,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 2062914076}
+    - target: {fileID: 9103868448840570728, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 9103868448840570728, guid: a0b9c4a2ba3fa7c4981316d38575c127, type: 3}
       propertyPath: m_TagString
       value: Wall
@@ -1097,6 +1117,10 @@ PrefabInstance:
     - target: {fileID: 4804683024767415657, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6850270795017772791, guid: 434a08b076a204642aa9587367fc8017, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 191
       objectReference: {fileID: 0}
     - target: {fileID: 8033230483897615822, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_Material

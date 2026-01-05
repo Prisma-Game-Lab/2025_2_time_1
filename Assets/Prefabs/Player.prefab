@@ -165,6 +165,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fba137df26437d408bf102392c9e36d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitsPerCharge: 5
+  comboDuration: 4
   moveSpeed: 8
   sprintMultiplier: 1.8
   rotationSmoothTime: 0.05
@@ -292,11 +294,16 @@ MonoBehaviour:
   heavyAttackForce: 50
   lightAttackDelay: 0.15
   range: 8
+  heavyChargeTime: 0.8
   hitEffect: {fileID: 0}
   heavyAttackEffect: {fileID: 0}
   bloodEffect: {fileID: 0}
   cameraImpactBack: 0.3
   cameraImpactSpeed: 4
+  normalFOV: 60
+  chargingFOV: 50
+  punchReleaseFOV: 70
+  fovLerpSpeed: 8
   health: 100
 --- !u!114 &4775366469624218330
 MonoBehaviour:
@@ -693,7 +700,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 63
+    m_Bits: 191
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
