@@ -22,6 +22,9 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Slider fovSlider;
     [SerializeField] private TMP_InputField fovInputField;
 
+    [Header("Tela de Morte")]
+    [SerializeField] private GameObject painelGameOver;
+
     void Start()
     {
         if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
@@ -76,8 +79,7 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    // --- FUN��ES DO SLIDER DE SENSIBILIDADE ---
-    // (Renomeei de OnSensitivityChanged para ser mais claro)
+    // --- FUNCOES DO SLIDER DE SENSIBILIDADE ---
     public void OnSensitivitySliderChanged(float newValue)
     {
         // 1. Atualiza o GameManager (que salva no PlayerPrefs)
@@ -109,8 +111,7 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    // --- FUN��ES DO SLIDER DE VOLUME ---
-    // (Renomeei de OnVolumeChanged para ser mais claro)
+    // --- FUNCOES DO SLIDER DE VOLUME ---
     public void OnVolumeSliderChanged(float newValue) // newValue � de 0.0 a 1.0
     {
         // 1. Atualiza o AudioManager (que salva no PlayerPrefs)
@@ -171,8 +172,6 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    // --- O RESTO DO SEU SCRIPT ---
-
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -199,6 +198,7 @@ public class PauseMenu : MonoBehaviour
         painelOpcoes.SetActive(false);
         fundo.SetActive(false);
         temCerteza.SetActive(false);
+        painelGameOver.SetActive(false);
     }
 
     void pausaJogo()
@@ -218,6 +218,13 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
+
+    public void ativarTelaGameOver()
+    {
+        fundo.SetActive(true);
+        painelGameOver.SetActive(true);
+    }
+
     public void Sair()
     {
         Application.Quit();
@@ -225,7 +232,6 @@ public class PauseMenu : MonoBehaviour
 
     public void AbriOpcoes()
     {
-        // ATUALIZADO: Garante que os InputFields tamb�m sejam atualizados
         if (sensitivitySlider != null && sensitivityInputField != null)
         {
             float currentSens = GameManager.Instance.MouseSensitivity;
@@ -258,15 +264,27 @@ public class PauseMenu : MonoBehaviour
         SceneManager.LoadScene(cenaMenu);
     }
 
-    public void IrMenuPrincripal()
+    public void IrMenuPrincipal()
     {
         painelPause.SetActive(false);
-        temCerteza.SetActive(true);
+        if(!painelGameOver.activeSelf)
+        {
+            temCerteza.SetActive(true);
+        }
+        else
+        {
+            CarregarMenu();
+        }
     }
 
     public void NaoVoltarMenuPrincipal()
     {
         painelPause.SetActive(true);
         temCerteza.SetActive(false);
+    }
+
+    public void ReiniciarFase()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
