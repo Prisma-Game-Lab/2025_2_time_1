@@ -610,9 +610,14 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             Die();
     }
 
+
+    public PauseMenu scriptDoMenu;
+    
     public void Die()
     {
         Debug.Log("Player has died.");
+        scriptDoMenu.ativarTelaGameOver();
+        GameManager.Instance.TogglePause();
         rb.constraints = RigidbodyConstraints.None;
         rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
         // TODO: Fazer ele ser lançado para tras ????
@@ -629,4 +634,5 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
     public int GetComboCount() => comboCount;
     public int GetCharges() => charges;
+
 }
