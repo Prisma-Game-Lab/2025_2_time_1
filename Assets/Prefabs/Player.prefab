@@ -39,7 +39,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1353521704852240712}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: dcbab973be79504448fefbc67c2c1ef4, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -165,13 +165,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fba137df26437d408bf102392c9e36d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitsPerCharge: 5
+  hitsPerCharge: 3
   comboDuration: 4
-  moveSpeed: 8
+  moveSpeed: 12
   sprintMultiplier: 1.8
   rotationSmoothTime: 0.05
   playerCamera: {fileID: 6850270795017772791}
-  jumpForce: 6
+  jumpForce: 8
   groundCheck: {fileID: 5537668999413467039}
   groundDistance: 0.15
   groundMask:
@@ -278,7 +278,7 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings:
     - m_Name: 
-      m_Id: 398d91f6-8607-4923-9c35-45fe021067b7
+      m_Id: 26f45669-bd0d-4881-b71d-90fe4adb2ac1
       m_Path: <Mouse>/rightButton
       m_Interactions: 
       m_Processors: 
@@ -291,20 +291,22 @@ MonoBehaviour:
   attackCooldown: 0.5
   heavyAttackCooldown: 1.2
   lightAttackForce: 20
-  heavyAttackForce: 50
+  heavyAttackForce: 35
   lightAttackDelay: 0.15
   range: 8
   heavyChargeTime: 0.8
   hitEffect: {fileID: 0}
   heavyAttackEffect: {fileID: 0}
-  bloodEffect: {fileID: 0}
-  cameraImpactBack: 0.3
+  bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
+  vfxLifetime: 2
+  cameraImpactBack: 0.35
   cameraImpactSpeed: 4
   normalFOV: 60
   chargingFOV: 50
   punchReleaseFOV: 70
   fovLerpSpeed: 8
   health: 100
+  layerMask: 0
 --- !u!114 &4775366469624218330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -555,6 +557,7 @@ GameObject:
   - component: {fileID: 9079749915131154491}
   - component: {fileID: 5336909466921837525}
   - component: {fileID: 4483870183974166680}
+  - component: {fileID: 4445430483662884048}
   m_Layer: 0
   m_Name: Graphics
   m_TagString: Untagged
@@ -627,6 +630,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!95 &4445430483662884048
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8361297906051278594}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d7399e66b5c7690499540a7dbb6d88b2, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &8591750523277323072
 GameObject:
   m_ObjectHideFlags: 0

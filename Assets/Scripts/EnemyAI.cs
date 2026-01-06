@@ -39,6 +39,8 @@ public class EnemyAI : MonoBehaviour, IDamageable
     private Rigidbody rb;
     private Animator animator;
     private Collider col;
+    private Rigidbody[] _ragdollRbs;
+    private Rigidbody _chestRb;
 
     private enum State { Idle, Chase, Attack, Dead }
     private State currentState;
@@ -66,6 +68,9 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
         // deixa a movimentação normal
         rb.isKinematic = true;
+
+        _ragdollRbs = GetComponentsInChildren<Rigidbody>();
+        DisableRagdoll();
     }
 
     void FixedUpdate()
@@ -259,11 +264,12 @@ public class EnemyAI : MonoBehaviour, IDamageable
             navMeshAgent.enabled = false;
         }
 
-        rb.isKinematic = false;
-        rb.useGravity = true;
+        //rb.isKinematic = false;
+        EnableRagdoll();
+        // rb.useGravity = true;
 
-        rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
-        rb.AddTorque(Random.insideUnitSphere * deathTorqueForce, ForceMode.Impulse);
+        // rb.AddForce(Vector3.up * deathUpwardForce, ForceMode.Impulse);
+        // rb.AddTorque(Random.insideUnitSphere * deathTorqueForce, ForceMode.Impulse);
 
         Destroy(gameObject, 3f);
     }
@@ -316,5 +322,25 @@ public class EnemyAI : MonoBehaviour, IDamageable
             Debug.DrawLine(previousPoint, newPoint, color);
             previousPoint = newPoint;
         }
+    }
+
+    private void DisableRagdoll()
+    {
+        foreach (var rigidbody in _ragdollRbs)
+        {
+            rigidbody.isKinematic = true;
+        }
+    }
+
+    private void EnableRagdoll()
+    {
+        Vector3 backDirection = transform.position - playerTransform.position;
+        backDirection.Normalize();
+        foreach (var rigidbody in _ragdollRbs)
+        {
+            rigidbody.isKinematic = false;
+            rigidbody.AddForceAtPosition(backDirection * 100,rigidbody.centerOfMass,ForceMode.Impulse);
+        }
+        animator.enabled = false;
     }
 }

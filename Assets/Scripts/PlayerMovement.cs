@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using System.Linq;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEngine.VFX;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour, IDamageable
@@ -62,7 +63,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     [Header("Efeitos Visuais")]
     [SerializeField] ParticleSystem hitEffect;
     [SerializeField] ParticleSystem heavyAttackEffect;
-    [SerializeField] ParticleSystem bloodEffect;
+    [SerializeField] VisualEffect bloodEffect;
+    [SerializeField] float vfxLifetime = 2f;           //Tempo para destruir o efeito
     [SerializeField] float cameraImpactBack = 0.3f;
     [SerializeField] float cameraImpactSpeed = 4f;
 
@@ -358,25 +360,42 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         if (Physics.Raycast(attackRay, out RaycastHit hit, range))
         {
-            if (!heavy)   
+            // Aplica física simples (empurrão)
+            if (!heavy && hit.rigidbody != null)
+                hit.rigidbody.velocity = playerCamera.transform.forward * force;
+
+            // --- Lógica de Visual e Dano ---
+            // Verifica se é Inimigo (checa pai/raiz para evitar erro de collider filho)
+            if (hit.collider.CompareTag("Enemy") || hit.transform.root.CompareTag("Enemy"))
             {
-                if (hit.rigidbody != null)
-                    hit.rigidbody.velocity = playerCamera.transform.forward * force;
-            }
-
-
-            if (hit.collider.CompareTag("Enemy"))
-            {
-                if (bloodEffect != null)
-                    Instantiate(bloodEffect, hit.point, Quaternion.LookRotation(hit.normal));
-
+                // 1. Aplica Dano
                 IDamageable dmg = hit.collider.GetComponentInParent<IDamageable>();
                 dmg?.GetHit(damage);
-
                 RegisterSuccessfulHit();
+
+                // 2. Toca Efeito de Sangue (VFX GRAPH)
+                if (bloodEffect != null)
+                {
+                    // OFFSET: Adiciona um pequeno deslocamento para fora do corpo (0.1f)
+                    // Isso evita que o sangue nasça dentro do colisor e suma
+                    Vector3 spawnPoint = hit.point + (hit.normal * 0.1f);
+
+                    VisualEffect vfxInstance = Instantiate(bloodEffect, spawnPoint, Quaternion.LookRotation(hit.normal));
+
+                    // LÓGICA DE QUANTIDADE: Define quantas partículas saem
+                    int count = heavy ? 50 : 15;
+                    if (vfxInstance.HasInt("BloodCount"))
+                    {
+                        vfxInstance.SetInt("BloodCount", count);
+                    }
+
+                    vfxInstance.Play();
+                    Destroy(vfxInstance.gameObject, vfxLifetime);
+                }
             }
             else
             {
+                // Se bateu na parede/chão (Usa o sistema antigo de partículas se ainda existir)
                 if (heavy && heavyAttackEffect != null)
                     Instantiate(heavyAttackEffect, hit.point, Quaternion.identity);
                 else if (hitEffect != null)
@@ -415,6 +434,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         OnComboChanged?.Invoke(comboCount);
     }
 
+
     private void PerformStrongPunch()
     {
         if (charges <= 0) return;
@@ -426,16 +446,33 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         if (Physics.Raycast(attackRay, out RaycastHit hit, range))
         {
-            if (hit.collider.CompareTag("Enemy"))
+            if (hit.collider.CompareTag("Enemy") || hit.transform.root.CompareTag("Enemy"))
             {
+                // Lógica de Inimigo
                 EnemyAI enemy = hit.collider.GetComponentInParent<EnemyAI>();
                 if (enemy != null)
                 {
                     enemy.TakeStrongPunch(playerCamera.transform.forward);
                 }
+
+                // Toca VFX de Sangue (Muito sangue!)
+                if (bloodEffect != null)
+                {
+                    Vector3 spawnPoint = hit.point + (hit.normal * 0.1f);
+                    VisualEffect vfxInstance = Instantiate(bloodEffect, spawnPoint, Quaternion.LookRotation(hit.normal));
+
+                    if (vfxInstance.HasInt("BloodCount"))
+                    {
+                        vfxInstance.SetInt("BloodCount", 50); // Valor fixo alto para super soco
+                    }
+
+                    vfxInstance.Play();
+                    Destroy(vfxInstance.gameObject, vfxLifetime);
+                }
             }
             else
             {
+                // Parede
                 if (heavyAttackEffect != null)
                     Instantiate(heavyAttackEffect, hit.point, Quaternion.identity);
             }
@@ -526,7 +563,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 wallrun = true;
                 vSpeed = 0;
             }
-            
+
         }
 
         
@@ -543,7 +580,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             float extraGravityMultiplier = 2f;
             rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
         }
-        
+
     }
 
     private void OnDisable()
