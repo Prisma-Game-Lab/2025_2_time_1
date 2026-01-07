@@ -421,6 +421,10 @@ PrefabInstance:
       propertyPath: chargeAttackAction.m_SingletonActionBindings.Array.data[0].m_Action
       value: Charge Attack
       objectReference: {fileID: 0}
+    - target: {fileID: 1680189514075806400, guid: 434a08b076a204642aa9587367fc8017, type: 3}
+      propertyPath: punchHit
+      value: 
+      objectReference: {fileID: 8300000, guid: 072d099c82aff5344a4871fecbf0a2ec, type: 3}
     - target: {fileID: 3495862100433709571, guid: 434a08b076a204642aa9587367fc8017, type: 3}
       propertyPath: m_LocalPosition.x
       value: -46.24
