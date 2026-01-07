@@ -341,8 +341,10 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     {
         if (cooldownTimer > 0) yield break;
         isAttacking = true;
-        armsAnimator.SetTrigger("attackJab");
 
+        playerSounds?.PlayAttackSwing(false);
+        
+        armsAnimator.SetTrigger("attackJab");
         anim?.SetTrigger("Jab");
 
         yield return new WaitForSeconds(delay);
@@ -403,6 +405,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 IDamageable dmg = hit.collider.GetComponentInParent<IDamageable>();
                 dmg?.GetHit(damage);
                 RegisterSuccessfulHit();
+
+                playerSounds?.PlayHitSound();
 
                 // 2. Toca Efeito de Sangue (VFX GRAPH)
                 if (bloodEffect != null)
@@ -471,6 +475,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         if (charges <= 0) return;
         if (playerCamera == null) return;
 
+        playerSounds?.PlayAttackSwing(true);
+
         anim?.SetTrigger("Heavy");
 
         Ray attackRay = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
@@ -485,6 +491,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 {
                     enemy.TakeStrongPunch(playerCamera.transform.forward);
                 }
+
+                playerSounds?.PlayHitSound();
 
                 // Toca VFX de Sangue (Muito sangue!)
                 if (bloodEffect != null)
