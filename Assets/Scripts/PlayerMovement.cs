@@ -1,8 +1,9 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
-using System.Linq;
 using System.Collections;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Animations.Rigging;
+using UnityEngine.InputSystem;
 using UnityEngine.VFX;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -29,6 +30,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     [SerializeField] float sprintMultiplier = 1.8f;
     [SerializeField] float rotationSmoothTime = 0.05f;
     [SerializeField] float wallrunBoost = 2f;
+    [SerializeField] float wallrunAngle = 15f;
     [SerializeField] float wallCheck = 0.8f;
     [SerializeField] Camera playerCamera;
 
@@ -94,6 +96,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private float colRadius;
     private float jumpCheckCooldown = 0.5f;
     private float jumpCheckTimer = 0f;
+    private bool wallrun = false;
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
@@ -102,6 +105,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private float deathBackwardForce = 15f;
     private float deathTorqueForce = 5f;
     private LayerMask mask;
+
     private void Awake()
     {
         Instance = this;
@@ -205,10 +209,37 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 targetFOV,
                 Time.deltaTime * fovLerpSpeed
             );
+
         }
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
         isGrounded = GroundCheck();
+
+        Vector3 rot;
+        rot = playerCamera.transform.rotation.eulerAngles;
+        if (wallrun)
+        {
+            bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
+            bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
+            float angle = 0f;
+            if (left)
+            {
+                angle = wallrunAngle;
+            }
+            else if (right)
+            {
+                angle = -wallrunAngle;
+            }
+            playerCamera.transform.localRotation = Quaternion.Slerp(
+                playerCamera.transform.localRotation,
+                Quaternion.Euler(0f, 0f, angle),
+                rotationSmoothTime * 500000000f
+                );
+        }
+        else
+        {
+            playerCamera.transform.rotation = Quaternion.Euler(rot.x, rot.y, 0);
+        }
 
         if (jumpPressed && isGrounded)
         {
@@ -553,7 +584,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
         bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
-        bool wallrun = false; 
         float vSpeed = rb.velocity.y;
         if (left || right)
         {
@@ -563,10 +593,10 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 wallrun = true;
                 vSpeed = 0;
             }
-
+            else wallrun = false;
         }
+        else wallrun = false;
 
-        
         jumpCheckTimer -= Time.deltaTime;
         if (jumpCheckTimer < 0) jumpCheckTimer = 0;
 
@@ -580,7 +610,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             float extraGravityMultiplier = 2f;
             rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
         }
-
+        
     }
 
     private void OnDisable()
