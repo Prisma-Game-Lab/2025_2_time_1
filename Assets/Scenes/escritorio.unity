@@ -2473,6 +2473,30 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 287083271659769630, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 210
+      objectReference: {fileID: 0}
+    - target: {fileID: 287083271659769630, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 287083271659769630, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -147
+      objectReference: {fileID: 0}
+    - target: {fileID: 287083271659769630, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -105
+      objectReference: {fileID: 0}
+    - target: {fileID: 1569213376413646523, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1569213376413646523, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -378902927, guid: e1771f39e468a094e882656333780d23, type: 3}
     - target: {fileID: 1831512312947327763, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2481,6 +2505,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1741217161}
+    - target: {fileID: 2135745547318771353, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2564764575020515218, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2497,6 +2525,30 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1741217161}
+    - target: {fileID: 4737747731507953507, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_Type
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4737747731507953507, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 1870179583, guid: e1771f39e468a094e882656333780d23, type: 3}
+    - target: {fileID: 5453363443694930003, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 210
+      objectReference: {fileID: 0}
+    - target: {fileID: 5453363443694930003, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5453363443694930003, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 168
+      objectReference: {fileID: 0}
+    - target: {fileID: 5453363443694930003, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -105
+      objectReference: {fileID: 0}
     - target: {fileID: 6276998099494937128, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -2580,6 +2632,10 @@ PrefabInstance:
     - target: {fileID: 6459435332126694216, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7465708008587390066, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_text
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8687986936804075577, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

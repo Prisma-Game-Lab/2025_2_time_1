@@ -10,8 +10,9 @@ public class MenuInicial : MonoBehaviour
     [SerializeField] private string cenaParaCarregar;
     [SerializeField] private GameObject painelInicial;
     [SerializeField] private GameObject painelOpcoes;
+    [SerializeField] private GameObject painelCreditos;
 
-    [Header("Configurações de UI")]
+    [Header("Configuraï¿½ï¿½es de UI")]
     [SerializeField] private Slider sliderSensi;
     [SerializeField] private TMP_InputField sensitivityInputField; // 2. ADICIONE ESTA LINHA
     [SerializeField] private Slider volumeSlider;
@@ -19,7 +20,7 @@ public class MenuInicial : MonoBehaviour
 
     private void Start()
     {
-        // --- Configuração de Sensibilidade ---
+        // --- Configuraï¿½ï¿½o de Sensibilidade ---
         if (sliderSensi != null && sensitivityInputField != null)
         {
             // 1. Pega o valor do GameManager
@@ -34,7 +35,7 @@ public class MenuInicial : MonoBehaviour
             sensitivityInputField.onEndEdit.AddListener(OnSensitivityInputChanged);
         }
 
-        // --- Configuração de Volume ---
+        // --- Configuraï¿½ï¿½o de Volume ---
         if (volumeSlider != null && volumeInputField != null)
         {
             // 1. Pega o valor salvo
@@ -50,7 +51,7 @@ public class MenuInicial : MonoBehaviour
         }
     }
 
-    // --- FUNÇÕES DE SENSIBILIDADE ---
+    // --- FUNï¿½ï¿½ES DE SENSIBILIDADE ---
     // (Renomeei a sua OnSensitivityChanged para ficar mais claro)
     public void OnSensitivitySliderChanged(float newValue)
     {
@@ -68,17 +69,17 @@ public class MenuInicial : MonoBehaviour
         {
             // Valida o valor
             newValue = Mathf.Clamp(newValue, sliderSensi.minValue, sliderSensi.maxValue);
-            // Atualiza o slider (que vai chamar a função OnSensitivitySliderChanged)
+            // Atualiza o slider (que vai chamar a funï¿½ï¿½o OnSensitivitySliderChanged)
             sliderSensi.value = newValue;
         }
         else
         {
-            // Reverte o texto se for inválido
+            // Reverte o texto se for invï¿½lido
             sensitivityInputField.text = sliderSensi.value.ToString("F2");
         }
     }
 
-    // --- FUNÇÕES DE VOLUME ---
+    // --- FUNï¿½ï¿½ES DE VOLUME ---
     // (Renomeei a sua OnVolumeChanged)
     public void OnVolumeSliderChanged(float newValue) // valor 0.0 a 1.0
     {
@@ -101,12 +102,12 @@ public class MenuInicial : MonoBehaviour
         }
         else
         {
-            // Reverte o texto se for inválido
+            // Reverte o texto se for invï¿½lido
             volumeInputField.text = (volumeSlider.value * 100f).ToString("F0");
         }
     }
 
-    // --- FUNÇÕES DE NAVEGAÇÃO ---
+    // --- FUNï¿½ï¿½ES DE NAVEGAï¿½ï¿½O ---
 
     public void CarregarCena()
     {
@@ -146,5 +147,12 @@ public class MenuInicial : MonoBehaviour
     {
         painelInicial.SetActive(true);
         painelOpcoes.SetActive(false);
+        painelCreditos.SetActive(false);
+    }
+
+    public void AbrirCreditos()
+    {
+        painelInicial.SetActive(false);
+        painelCreditos.SetActive(true);
     }
 }
