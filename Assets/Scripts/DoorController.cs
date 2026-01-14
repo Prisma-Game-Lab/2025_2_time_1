@@ -2,22 +2,32 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    [Header("Collider que bloqueia a passagem")]
-    public Collider doorCollider;
+    [Header("Modelo da porta fechada")]
+    public GameObject doorClosed;
+
+    [Header("Modelo da porta aberta")]
+    public GameObject doorOpen;
+
+    private void Start()
+    {
+        CloseDoor();
+    }
 
     public void OpenDoor()
     {
-        if (doorCollider != null)
-        {
-            doorCollider.enabled = false; // Desativa a barreira
-        }
+        if (doorClosed != null)
+            doorClosed.SetActive(false);
+
+        if (doorOpen != null)
+            doorOpen.SetActive(true);
     }
 
     public void CloseDoor()
     {
-        if (doorCollider != null)
-        {
-            doorCollider.enabled = true; // Ativa a barreira
-        }
+        if (doorClosed != null)
+            doorClosed.SetActive(true);
+
+        if (doorOpen != null)
+            doorOpen.SetActive(false);
     }
 }
