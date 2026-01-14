@@ -1,7 +1,9 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
-using System.Linq;
 using System.Collections;
+using System.Linq;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.Animations.Rigging;
+using UnityEngine.InputSystem;
 using UnityEngine.VFX;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -10,7 +12,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     public static PlayerMovement Instance { get; private set; }
 
     private Animator anim;
-
     [Header("Combo")]
     [SerializeField] private int hitsPerCharge = 5;
     [SerializeField] private float comboDuration = 4f;
@@ -28,6 +29,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float sprintMultiplier = 1.8f;
     [SerializeField] float rotationSmoothTime = 0.05f;
+    [SerializeField] float wallrunBoost = 2f;
+    [SerializeField] float wallrunAngle = 15f;
+    [SerializeField] float wallCheck = 0.8f;
     [SerializeField] Camera playerCamera;
 
     [Header("Configurações de Pulo")]
@@ -92,8 +96,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private float colRadius;
     private float jumpCheckCooldown = 0.5f;
     private float jumpCheckTimer = 0f;
-
-    [SerializeField] int layerMask;
+    private bool wallrun = false;
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
@@ -101,6 +104,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private float deathUpwardForce = 10f;
     private float deathBackwardForce = 15f;
     private float deathTorqueForce = 5f;
+    private LayerMask mask;
 
     private void Awake()
     {
@@ -144,6 +148,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         targetFOV = normalFOV;
         if (playerCamera != null)
             playerCamera.fieldOfView = normalFOV;
+
+        mask = LayerMask.GetMask("Wall");
     }
 
     private void Update()
@@ -203,10 +209,37 @@ public class PlayerMovement : MonoBehaviour, IDamageable
                 targetFOV,
                 Time.deltaTime * fovLerpSpeed
             );
+
         }
 
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
         isGrounded = GroundCheck();
+
+        Vector3 rot;
+        rot = playerCamera.transform.rotation.eulerAngles;
+        if (wallrun)
+        {
+            bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
+            bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
+            float angle = 0f;
+            if (left)
+            {
+                angle = wallrunAngle;
+            }
+            else if (right)
+            {
+                angle = -wallrunAngle;
+            }
+            playerCamera.transform.localRotation = Quaternion.Slerp(
+                playerCamera.transform.localRotation,
+                Quaternion.Euler(0f, 0f, angle),
+                rotationSmoothTime * 500000000f
+                );
+        }
+        else
+        {
+            playerCamera.transform.rotation = Quaternion.Euler(rot.x, rot.y, 0);
+        }
 
         if (jumpPressed && isGrounded)
         {
@@ -555,23 +588,23 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         float currentSpeed = moveSpeed;
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
             currentSpeed *= sprintMultiplier;
-        float wallrunBoost = 5;
         Vector3 move = transform.forward * moveInput.y + transform.right * moveInput.x;
-        LayerMask mask = LayerMask.GetMask("Wall");
 
-
-        if ((Physics.Raycast(transform.position, transform.right, 5, mask.value)) || (Physics.Raycast(transform.position, -transform.right, 5, mask.value)))
-        {
-            print("wall");
-            if (!isGrounded)
-            {
-                print("wallrun");
-                move = move * wallrunBoost;
-            }
-
-        }
-
+        bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
+        bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
         float vSpeed = rb.velocity.y;
+        if (left || right)
+        {
+            if (!isGrounded && (moveInput.y != 0f))
+            {
+                move = move * wallrunBoost;
+                wallrun = true;
+                vSpeed = 0;
+            }
+            else wallrun = false;
+        }
+        else wallrun = false;
+
         jumpCheckTimer -= Time.deltaTime;
         if (jumpCheckTimer < 0) jumpCheckTimer = 0;
 
@@ -580,12 +613,12 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         rb.velocity = move * currentSpeed + new Vector3(0, vSpeed, 0);
 
-        if (!isGrounded)
+        if (!isGrounded && !wallrun)
         {
             float extraGravityMultiplier = 2f;
             rb.AddForce(Physics.gravity * (extraGravityMultiplier - 1f), ForceMode.Acceleration);
         }
-
+        
     }
 
     private void OnDisable()
