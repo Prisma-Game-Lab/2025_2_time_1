@@ -5,34 +5,34 @@ public class RoomController : MonoBehaviour
     [Header("Porta vinculada")]
     public DoorController door;
 
-    private int enemiesAlive = 0;
+    [Header("Quantos inimigos precisam morrer")]
+    public int killsToOpen = 3;
 
-    private void Start()
+    private int currentKills = 0;
+    private bool doorOpened = false;
+
+    private void OnEnable()
     {
-        // Encontra todos os inimigos filhos desta sala
-        EnemyAI[] enemies = GetComponentsInChildren<EnemyAI>();
-        enemiesAlive = enemies.Length;
-
-        // Começa ouvindo o evento
         EnemyAI.OnEnemyDied += OnEnemyDied;
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         EnemyAI.OnEnemyDied -= OnEnemyDied;
     }
 
     private void OnEnemyDied(EnemyAI enemy)
     {
-        // Só conta mortes de inimigos dentro dessa sala
-        if (enemy.transform.IsChildOf(transform))
-        {
-            enemiesAlive--;
+        if (doorOpened) return;
 
-            if (enemiesAlive <= 0)
-            {
-                door.OpenDoor();
-            }
+        currentKills++;
+
+        Debug.Log($"Inimigos mortos: {currentKills}/{killsToOpen}");
+
+        if (currentKills >= killsToOpen)
+        {
+            doorOpened = true;
+            door.OpenDoor();
         }
     }
 }
