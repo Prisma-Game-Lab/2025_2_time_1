@@ -2960,6 +2960,11 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!20 &2066480914 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 6850270795017772791, guid: 434a08b076a204642aa9587367fc8017, type: 3}
+  m_PrefabInstance: {fileID: 567407375}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2074178618 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: cc6dbe5534818464384721885617bade, type: 3}
@@ -3203,6 +3208,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1741217161}
+    - target: {fileID: 1934162251052185690, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 2066480914}
     - target: {fileID: 1994452386387947009, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -3250,6 +3259,10 @@ PrefabInstance:
     - target: {fileID: 5453363443694930003, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -105
+      objectReference: {fileID: 0}
+    - target: {fileID: 5946993374536975930, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_Sprite
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6276998099494937128, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -3335,9 +3348,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6555721779609288551, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 3a928316ea660c4438e2364f7e5a9aa3, type: 3}
+    - target: {fileID: 6555721779609288551, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_UseSpriteMesh
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6555721779609288551, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7465708008587390066, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_text
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7601232886685904176, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 171.33978
+      objectReference: {fileID: 0}
+    - target: {fileID: 7601232886685904176, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 121.14258
       objectReference: {fileID: 0}
     - target: {fileID: 8687986936804075577, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -3347,7 +3380,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: CanvasPauseMenu
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5946993374536975930, guid: 38063a2e0a260b6469ca5f1cbc70676a, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
