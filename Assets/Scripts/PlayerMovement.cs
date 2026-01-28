@@ -99,6 +99,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private bool wallrun = false;
     private short wallDir = 0;
     private bool wallrunnable = true;
+    private float wallLerpTimer = 0f;
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
@@ -220,6 +221,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         Vector3 rot = playerCamera.transform.rotation.eulerAngles;
         if (wallrun)
         {
+            wallLerpTimer += Time.deltaTime;
             bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
             bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
             if (left)
@@ -233,7 +235,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             playerCamera.transform.localRotation = Quaternion.Slerp(
                 playerCamera.transform.localRotation,
                 Quaternion.Euler(0f, 0f, wallDir * wallrunAngle),
-                rotationSmoothTime * 500000000f
+                wallLerpTimer * 10f
                 );
         }
         else
@@ -607,9 +609,11 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             {
                 if (!isGrounded && (moveInput.y != 0f))
                 {
+                    if (wallrun == false) wallLerpTimer = 0;
                     move = move * wallrunBoost;
                     wallrun = true;
                     vSpeed = 0;
+
                 }
                 else wallrun = false;
             }
