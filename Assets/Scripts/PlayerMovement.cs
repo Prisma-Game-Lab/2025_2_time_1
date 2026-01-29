@@ -97,6 +97,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private float jumpCheckCooldown = 0.5f;
     private float jumpCheckTimer = 0f;
     private bool wallrun = false;
+    private short wallDir = 0;
+    private bool wallrunnable = true;
+    private float wallLerpTimer = 0f;
 
     private HoldableObject heldObject;
     private bool isAttacking = false;
@@ -215,25 +218,24 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
         isGrounded = GroundCheck();
 
-        Vector3 rot;
-        rot = playerCamera.transform.rotation.eulerAngles;
+        Vector3 rot = playerCamera.transform.rotation.eulerAngles;
         if (wallrun)
         {
+            wallLerpTimer += Time.deltaTime;
             bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
             bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
-            float angle = 0f;
             if (left)
             {
-                angle = wallrunAngle;
+                wallDir = 1;
             }
             else if (right)
             {
-                angle = -wallrunAngle;
+                wallDir = -1;
             }
             playerCamera.transform.localRotation = Quaternion.Slerp(
                 playerCamera.transform.localRotation,
-                Quaternion.Euler(0f, 0f, angle),
-                rotationSmoothTime * 500000000f
+                Quaternion.Euler(0f, 0f, wallDir * wallrunAngle),
+                wallLerpTimer * 10f
                 );
         }
         else
@@ -246,9 +248,17 @@ public class PlayerMovement : MonoBehaviour, IDamageable
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             jumpCheckTimer = jumpCheckCooldown;
         }
+        else if (jumpPressed && wallrun)
+        {
+            Vector3 jumpvector = transform.up * jumpForce + (transform.right * -wallDir * jumpForce * 20f);
+            rb.AddForce(jumpvector, ForceMode.Impulse);
+            jumpCheckTimer = jumpCheckCooldown;
+            wallrun = false;
+            wallrunnable = false;
+        }
 
-        // --- Interação com E ---
-        if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+            // --- Interação com E ---
+            if (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (playerCamera == null) return;
 
@@ -584,6 +594,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         }
 
         isGrounded = GroundCheck();
+        if (isGrounded) wallrunnable = true;
 
         float currentSpeed = moveSpeed;
         if (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed)
@@ -593,17 +604,21 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         bool left = (Physics.Raycast(transform.position, transform.right, wallCheck, mask.value));
         bool right = (Physics.Raycast(transform.position, -transform.right, wallCheck, mask.value));
         float vSpeed = rb.velocity.y;
-        if (left || right)
-        {
-            if (!isGrounded && (moveInput.y != 0f))
+        if (wallrunnable) {
+            if (left || right)
             {
-                move = move * wallrunBoost;
-                wallrun = true;
-                vSpeed = 0;
+                if (!isGrounded && (moveInput.y != 0f))
+                {
+                    if (wallrun == false) wallLerpTimer = 0;
+                    move = move * wallrunBoost;
+                    wallrun = true;
+                    vSpeed = 0;
+
+                }
+                else wallrun = false;
             }
             else wallrun = false;
         }
-        else wallrun = false;
 
         jumpCheckTimer -= Time.deltaTime;
         if (jumpCheckTimer < 0) jumpCheckTimer = 0;

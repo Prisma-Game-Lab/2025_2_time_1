@@ -4,24 +4,31 @@ using UnityEngine.UI;
 public class CrosshairController : MonoBehaviour
 {
     public Camera playerCamera;
-    public Image crosshair;
+    public Sprite idlecrosshair;
+    public Sprite holdcrosshair;
     public float maxDistance = 100f;
     public Color normalColor = Color.white;
     public Color hitColor = Color.red;
 
+    private Image crosshair;
+
+    private void Start()
+    {
+        crosshair = gameObject.GetComponent<Image>();
+    }
     void Update()
     {
-        if (playerCamera == null || crosshair == null) return;
+        if (playerCamera == null || idlecrosshair == null || holdcrosshair == null) return;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance))
         {
             HoldableObject holdable = hit.collider.GetComponentInParent<HoldableObject>();
-            crosshair.color = holdable != null ? hitColor : normalColor;
+            crosshair.sprite = holdable != null ? holdcrosshair : idlecrosshair;
         }
         else
         {
-            crosshair.color = normalColor;
+            crosshair.sprite = idlecrosshair;
         }
     }
 }

@@ -136,3 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ed9e802a8107534e843da4cee238b6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holdDistance: 2
+  followSpeed: 15
+  holdOffset: {x: -5.3, y: -1, z: 1}
+  rotationOffset: {x: 0, y: 0, z: 0}
