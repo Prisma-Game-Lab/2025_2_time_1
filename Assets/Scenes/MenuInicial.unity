@@ -4065,7 +4065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ed244c04b0c4ac47a1f6e7fb9626d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cenaParaCarregar: Escritorio
+  cenaParaCarregar: Cutscenes
   painelInicial: {fileID: 1877253722}
   painelOpcoes: {fileID: 2119609132}
   painelCreditos: {fileID: 1060979950}
