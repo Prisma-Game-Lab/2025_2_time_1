@@ -65,6 +65,9 @@ PrefabInstance:
       addedObject: {fileID: 5718305163314644819}
     - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: 6166751b3dacbf044b73f775ce74a153, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 3398379574426658337}
+    - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: 6166751b3dacbf044b73f775ce74a153, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 2159459224423570975}
     - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: 6166751b3dacbf044b73f775ce74a153, type: 3}
       insertIndex: -1
@@ -97,6 +100,22 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2432090755550338912, guid: 6166751b3dacbf044b73f775ce74a153, type: 3}
+--- !u!114 &3398379574426658337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1477758465952142727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c15fb911d9a9e7f42912c18fb8d55a5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 20
+  minImpactVelocity: 3
+  bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
+  vfxLifetime: 2
 --- !u!114 &2159459224423570975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,6 +128,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ed9e802a8107534e843da4cee238b6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  holdDistance: 2
+  followSpeed: 15
+  holdOffset: {x: 0, y: 0, z: 0}
+  rotationOffset: {x: 0, y: 0, z: 0}
 --- !u!54 &4178277289934388541
 Rigidbody:
   m_ObjectHideFlags: 0
