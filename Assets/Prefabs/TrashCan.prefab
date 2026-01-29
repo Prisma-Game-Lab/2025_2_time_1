@@ -65,6 +65,9 @@ PrefabInstance:
       addedObject: {fileID: 7636535314708222218}
     - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: dcbf9d4c15b48474893c5a3c2c6d4a8b, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 3646136695423706524}
+    - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: dcbf9d4c15b48474893c5a3c2c6d4a8b, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 6248934397322638389}
     - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: dcbf9d4c15b48474893c5a3c2c6d4a8b, type: 3}
       insertIndex: -1
@@ -97,6 +100,22 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -2432090755550338912, guid: dcbf9d4c15b48474893c5a3c2c6d4a8b, type: 3}
+--- !u!114 &3646136695423706524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7259517298810783403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c15fb911d9a9e7f42912c18fb8d55a5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 5
+  minImpactVelocity: 3
+  bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
+  vfxLifetime: 2
 --- !u!54 &6248934397322638389
 Rigidbody:
   m_ObjectHideFlags: 0

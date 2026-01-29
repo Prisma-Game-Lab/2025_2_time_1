@@ -311,7 +311,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!1 &40225558 stripped
@@ -554,7 +554,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!1 &154994818
@@ -1320,7 +1320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!4 &279407406 stripped
@@ -3668,7 +3668,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!1 &616638592 stripped
@@ -3689,7 +3689,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!1 &656376702
@@ -11896,7 +11896,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!1 &1514208673 stripped
@@ -12056,7 +12056,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!20 &1566457331 stripped
@@ -13267,7 +13267,7 @@ PrefabInstance:
       objectReference: {fileID: 443966149}
     - target: {fileID: 3567182381941243453, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
       propertyPath: m_VersionIndex
-      value: 916
+      value: 937
       objectReference: {fileID: 0}
     - target: {fileID: 3739300856080084920, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
       propertyPath: m_IsActive
@@ -13387,7 +13387,7 @@ PrefabInstance:
       objectReference: {fileID: 1078156452}
     - target: {fileID: 5087226747063874257, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
       propertyPath: m_VersionIndex
-      value: 3755
+      value: 3776
       objectReference: {fileID: 0}
     - target: {fileID: 5087226747063874257, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
       propertyPath: m_SelectedEdges.Array.size
@@ -16511,7 +16511,7 @@ PrefabInstance:
       objectReference: {fileID: 1984275964}
     - target: {fileID: 7816350309641918803, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
       propertyPath: m_VersionIndex
-      value: 62489
+      value: 62510
       objectReference: {fileID: 0}
     - target: {fileID: 7822533215975409233, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
       propertyPath: holdOffset.y
@@ -16917,7 +16917,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 5
-  minImpactVelocity: 3
+  minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
 --- !u!114 &1790406895 stripped
