@@ -61,7 +61,7 @@ public class PlayerSounds : MonoBehaviour
         if (punchHit != null)
         {
             sfxSource.pitch = Random.Range(0.8f, 1.2f);
-            sfxSource.PlayOneShot(punchHit, 1f);
+            sfxSource.PlayOneShot(punchHit, 0.45f);
         }
     }
 
