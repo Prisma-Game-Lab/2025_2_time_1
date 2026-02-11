@@ -586,6 +586,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
+        print(health);
         if (GameManager.Instance != null &&
             GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {

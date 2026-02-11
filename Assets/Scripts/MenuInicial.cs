@@ -112,6 +112,7 @@ public class MenuInicial : MonoBehaviour
     public void CarregarCena()
     {
         // IMPORTANTE: Mude o estado do jogo para "Playing" ANTES de carregar
+        AudioManager.Instance.Stop("MusicaMenu");
         if (GameManager.Instance != null)
         {
             GameManager.Instance.ChangeState(GameManager.GameState.Playing);

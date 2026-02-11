@@ -32,6 +32,7 @@ public class ThrownDamage : MonoBehaviour
             collision.collider.GetComponentInParent<IDamageable>();
 
         if (damageable == null) return;
+        if (collision.collider.GetComponentInParent<PlayerMovement>() != null) return;
 
         // --------------------
         // DANO
