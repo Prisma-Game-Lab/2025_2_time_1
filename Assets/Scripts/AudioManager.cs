@@ -22,6 +22,7 @@ public class AudioManager : MonoBehaviour
     public const string MasterVolumeKey = "MasterVolume";
     private float masterVolume = 1f;
 
+    public bool combat = false;
     private void Awake()
     {
         if (Instance != null && Instance != this)

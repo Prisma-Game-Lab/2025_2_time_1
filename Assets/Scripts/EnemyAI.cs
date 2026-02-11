@@ -91,6 +91,15 @@ public class EnemyAI : MonoBehaviour, IDamageable
         //Debug.Log(animator.GetBool("isWalking"));
     }
     
+    private void SetMusic()
+    {
+        if (AudioManager.Instance.combat == false) { 
+            AudioManager.Instance.combat = true;
+            AudioManager.Instance.Stop("Fase01");
+            AudioManager.Instance.Play("Combate");
+        }
+        
+    }
     private void HandleIdleState()
     {
         // Logic for Idle state
@@ -106,6 +115,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private void HandleChaseState()
     {
+        SetMusic();
         // Logic for Chase state
         // Debug.Log("Enemy is chasing.");
         // navMeshAgent.SetDestination(playerTransform.position);
@@ -141,7 +151,7 @@ public class EnemyAI : MonoBehaviour, IDamageable
 
     private void HandleAttackState()
     {
-
+        SetMusic();
         if (playerTransform == null) return;
 
         animator.SetBool("isInRange",true);
