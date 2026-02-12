@@ -3061,16 +3061,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1059271034}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2119609133}
+  m_Father: {fileID: 1422457702}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -439, y: -148}
+  m_AnchoredPosition: {x: -184.00003, y: -22.110306}
   m_SizeDelta: {x: 419.7186, y: 89.6139}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1059271036
@@ -3789,6 +3789,7 @@ RectTransform:
   - {fileID: 1439522599}
   - {fileID: 132394196}
   - {fileID: 810953297}
+  - {fileID: 1059271035}
   m_Father: {fileID: 2119609133}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4275,6 +4276,7 @@ RectTransform:
   - {fileID: 1831952442}
   - {fileID: 111408662}
   - {fileID: 347276703}
+  - {fileID: 1977388592}
   m_Father: {fileID: 2119609133}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4738,16 +4740,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1977388591}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2119609133}
+  m_Father: {fileID: 1638008821}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -458, y: 14}
+  m_AnchoredPosition: {x: -202.99998, y: -24.999992}
   m_SizeDelta: {x: 358.4559, y: 89.6139}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1977388593
@@ -4835,7 +4837,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.008238754, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -5132,8 +5134,6 @@ RectTransform:
   - {fileID: 586956268}
   - {fileID: 1638008821}
   - {fileID: 1422457702}
-  - {fileID: 1977388592}
-  - {fileID: 1059271035}
   - {fileID: 482455990}
   - {fileID: 1677707818}
   m_Father: {fileID: 999154349}
