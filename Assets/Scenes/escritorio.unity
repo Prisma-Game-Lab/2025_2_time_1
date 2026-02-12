@@ -19505,7 +19505,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: sounds.Array.size
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: sounds.Array.data[0].clip
@@ -19532,6 +19532,18 @@ PrefabInstance:
       value: Fase01
       objectReference: {fileID: 0}
     - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[2].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: e909eb7071625b848bb67e3e3baf89e1, type: 3}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[2].loop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[2].name
+      value: Combate
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: sounds.Array.data[0].pitch
       value: 1
       objectReference: {fileID: 0}
@@ -19540,11 +19552,19 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[2].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: sounds.Array.data[0].volume
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
       propertyPath: sounds.Array.data[1].volume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4902903753178320871, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
+      propertyPath: sounds.Array.data[2].volume
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7222861314885053040, guid: 46fe371197209c44e94de3cd0503c0d3, type: 3}
