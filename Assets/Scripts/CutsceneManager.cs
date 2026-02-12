@@ -4,31 +4,57 @@ using UnityEngine.SceneManagement;
 
 public class CutsceneManager : MonoBehaviour
 {
+    [Header("Referências")]
     public VideoPlayer videoPlayer;
-    public string nomeDaFase;
+
+    [Header("Vídeos")]
+    public VideoClip introClip;
+    public VideoClip endingClip;
+
+    [Header("Cenas")]
+    public string nextSceneAfterIntro = "Fase1";
+    public string nextSceneAfterEnding = "Menu";
+
+    private bool isEnding = false;
 
     void Start()
     {
-        // Inscreve a função no evento de término do vídeo
         videoPlayer.loopPointReached += AoTerminarVideo;
+
+        // Verifica se deve tocar final
+        if (PlayerPrefs.GetInt("PlayEnding", 0) == 1)
+        {
+            isEnding = true;
+            videoPlayer.clip = endingClip;
+            PlayerPrefs.SetInt("PlayEnding", 0);
+        }
+        else
+        {
+            isEnding = false;
+            videoPlayer.clip = introClip;
+        }
+
+        videoPlayer.Play();
     }
 
     void Update()
     {
-        // Pular cutscene ao apertar uma tecla
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CarregarFase();
+            CarregarProximaCena();
         }
     }
 
     void AoTerminarVideo(VideoPlayer vp)
     {
-        CarregarFase();
+        CarregarProximaCena();
     }
 
-    void CarregarFase()
+    void CarregarProximaCena()
     {
-        SceneManager.LoadScene(nomeDaFase);
+        if (isEnding)
+            SceneManager.LoadScene(nextSceneAfterEnding);
+        else
+            SceneManager.LoadScene(nextSceneAfterIntro);
     }
 }

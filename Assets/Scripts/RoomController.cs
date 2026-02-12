@@ -27,6 +27,9 @@ public class RoomController : MonoBehaviour
     private void OnDisable()
     {
         EnemyAI.OnEnemyDied -= OnEnemyDied;
+
+        if (endingVideo != null)
+            endingVideo.loopPointReached -= OnVideoFinished;
     }
 
     private void OnEnemyDied(EnemyAI enemy)
@@ -35,14 +38,14 @@ public class RoomController : MonoBehaviour
 
         Debug.Log($"Inimigos mortos: {currentKills}");
 
-
+        // ===== ABRIR PORTA =====
         if (!doorOpened && door != null && currentKills >= killsToOpenDoor)
         {
             doorOpened = true;
             door.OpenDoor();
         }
 
-        
+        // ===== TOCAR CUTSCENE =====
         if (!cutscenePlayed && playEndingCutscene && endingVideo != null && currentKills >= killsToPlayCutscene)
         {
             cutscenePlayed = true;
@@ -52,18 +55,22 @@ public class RoomController : MonoBehaviour
 
     private void PlayCutscene()
     {
-        Debug.Log("Tocando cutscene final");
+        Debug.Log("Indo para cutscene final");
 
-        if (GameManager.Instance != null)
-            GameManager.Instance.ChangeState(GameManager.GameState.Paused);
-
-        endingVideo.Play();
-        endingVideo.loopPointReached += OnVideoFinished;
+        PlayerPrefs.SetInt("PlayEnding", 1);
+        SceneManager.LoadScene("Cutscenes");
     }
+
 
     private void OnVideoFinished(VideoPlayer vp)
     {
         Debug.Log("Cutscene finalizada");
+
+        // Remove evento pra evitar duplicação
+        endingVideo.loopPointReached -= OnVideoFinished;
+
+        // Volta o tempo ao normal
+        Time.timeScale = 1f;
 
         SceneManager.LoadScene(sceneAfterCutscene);
     }

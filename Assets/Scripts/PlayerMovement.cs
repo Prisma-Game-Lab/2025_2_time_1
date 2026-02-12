@@ -21,6 +21,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private int currentChargeHits = 0; // 0 → 3
     private float comboTimer = 0f;
 
+    public static System.Action<PlayerMovement> OnPlayerSpawned;
+
     public System.Action<int> OnComboChanged;
     public System.Action<int> OnChargeProgressChanged; // 0 a 3
 
@@ -113,6 +115,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     private void Awake()
     {
         Instance = this;
+        OnPlayerSpawned?.Invoke(this);
     }
 
     private void Start()

@@ -11,25 +11,36 @@ public class ComboUI : MonoBehaviour
     public Color normalColor = Color.white;
     public Color fullChargeColor = Color.red;
 
-    private void Start()
+    private PlayerMovement player;
+
+    private void Awake()
     {
         chargeSlider.maxValue = 3;
         chargeSlider.value = 0;
 
+        // Escuta quando o Player nascer
+        PlayerMovement.OnPlayerSpawned += ConnectToPlayer;
+
+        // Caso o player já exista
         if (PlayerMovement.Instance != null)
         {
-            PlayerMovement.Instance.OnChargeProgressChanged += UpdateChargeBar;
+            ConnectToPlayer(PlayerMovement.Instance);
         }
+    }
 
+    private void ConnectToPlayer(PlayerMovement pm)
+    {
+        player = pm;
+        player.OnChargeProgressChanged += UpdateChargeBar;
         UpdateChargeBar(0);
     }
 
     private void OnDestroy()
     {
-        if (PlayerMovement.Instance != null)
-        {
-            PlayerMovement.Instance.OnChargeProgressChanged -= UpdateChargeBar;
-        }
+        PlayerMovement.OnPlayerSpawned -= ConnectToPlayer;
+
+        if (player != null)
+            player.OnChargeProgressChanged -= UpdateChargeBar;
     }
 
     private void UpdateChargeBar(int value)
