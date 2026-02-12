@@ -3680,63 +3680,6 @@ MonoBehaviour:
   minImpactVelocity: 2
   bloodEffect: {fileID: 2487601039522452908, guid: bf4bd4af5bda97d468e1882e4491838b, type: 3}
   vfxLifetime: 2
---- !u!1001 &591886639
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -50.77429
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -31.015789
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -33.072556
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8290146835111788812, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9025997665543548289, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
-      propertyPath: m_Name
-      value: Guarda (1)
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: abdb8ab0220d4784fac024dad54e3944, type: 3}
 --- !u!1 &616638592 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 380168649413997117, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
@@ -17178,6 +17121,74 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 135010349683795841, guid: 46fda612d2fe26f4d80de97ea2c7788a, type: 3}
   m_PrefabInstance: {fileID: 1745693444}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1782359322
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1782359324}
+  - component: {fileID: 1782359323}
+  m_Layer: 0
+  m_Name: EndingCutscene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!328 &1782359323
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1782359322}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: 9d18b1d1aaab1b641b9c8e7fbe6b26f2, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 0}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 2
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 2
+  m_TargetAudioSources:
+  - {fileID: 0}
+  m_DirectAudioVolumes:
+  - 1
+  m_Url: 
+  m_EnabledAudioTracks: 01
+  m_DirectAudioMutes: 00
+  m_ControlledAudioTrackCount: 1
+  m_PlayOnAwake: 0
+  m_SkipOnDrop: 1
+  m_Looping: 0
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
+--- !u!4 &1782359324
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1782359322}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1787514014
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17756,7 +17767,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   door: {fileID: 2074178620}
-  killsToOpen: 4
+  killsToOpenDoor: 3
+  playEndingCutscene: 1
+  endingVideo: {fileID: 1782359323}
+  killsToPlayCutscene: 10
+  sceneAfterCutscene: MenuInicial
 --- !u!1 &1895352593 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 9fa0150d1a6868740b2b9408193109ef, type: 3}
@@ -19600,4 +19615,4 @@ SceneRoots:
   - {fileID: 357172465}
   - {fileID: 805337916}
   - {fileID: 827738316}
-  - {fileID: 591886639}
+  - {fileID: 1782359324}
