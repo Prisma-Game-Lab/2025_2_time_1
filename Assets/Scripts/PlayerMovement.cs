@@ -656,10 +656,17 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     }
 
     // ------------------ IDamageable ------------------
+    public FeedbackVisual feedback;
+
     public void GetHit(int damage)
     {
         Debug.Log("Player got hit for " + damage + " damage.");
         health -= damage;
+
+        if (feedback != null) {
+            feedback.AtivarSangue();
+        }
+
         if (health <= 0)
             Die();
     }

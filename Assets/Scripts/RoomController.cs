@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RoomController : MonoBehaviour
 {
@@ -34,5 +35,6 @@ public class RoomController : MonoBehaviour
             doorOpened = true;
             door.OpenDoor();
         }
+
     }
 }
