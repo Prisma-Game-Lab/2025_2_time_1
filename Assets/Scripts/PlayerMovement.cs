@@ -12,16 +12,18 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     public static PlayerMovement Instance { get; private set; }
 
     private Animator anim;
-    [Header("Combo")]
-    [SerializeField] private int hitsPerCharge = 5;
+
+    [Header("Combo / Strong Punch Charge")]
+    [SerializeField] private int hitsToFullCharge = 3; // 3 socos = 1 soco forte
     [SerializeField] private float comboDuration = 4f;
+
     private int comboCount = 0;
-    private int charges = 0;
+    private int currentChargeHits = 0; // 0 → 3
     private float comboTimer = 0f;
-    private int lastChargeThreshold = 0;
 
     public System.Action<int> OnComboChanged;
-    public System.Action<int> OnChargesChanged;
+    public System.Action<int> OnChargeProgressChanged; // 0 a 3
+
 
     // ---------------------------------------------------------
 
@@ -45,7 +47,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
     [SerializeField] InputAction lookAction;
     [SerializeField] InputAction jumpAction;
     [SerializeField] InputAction attackAction;
-    [SerializeField] InputAction heavyAttackAction;
 
     [Header("Attack Stats")]
     [SerializeField] int attackDamage = 10;
@@ -126,7 +127,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         lookAction?.Enable();
         jumpAction?.Enable();
         attackAction?.Enable();
-        heavyAttackAction?.Enable();
 
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
@@ -145,7 +145,8 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         anim = GetComponentInChildren<Animator>();
 
         OnComboChanged?.Invoke(comboCount);
-        OnChargesChanged?.Invoke(charges);
+        OnChargeProgressChanged?.Invoke(currentChargeHits);
+
 
         // Inicializar FOV
         targetFOV = normalFOV;
@@ -309,7 +310,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         if (!isChargingHeavy)
         {
-            if (mouse.rightButton.wasPressedThisFrame && charges > 0)
+            if (mouse.rightButton.wasPressedThisFrame && currentChargeHits >= hitsToFullCharge)
             {
                 isChargingHeavy = true;
                 heavyChargeTimer = 0f;
@@ -362,20 +363,6 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         ApplyAttack(force, false, attackDamage);
         cooldownTimer = cooldown;
 
-        isAttacking = false;
-    }
-
-    private IEnumerator HandleHeavyAttack()
-    {
-        if (cooldownTimer > 0) yield break;
-        isAttacking = true;
-        armsAnimator.SetTrigger("attackStraight");
-        yield return StartCoroutine(CameraImpact(() =>
-        {
-            ApplyAttack(heavyAttackForce, true, heavyAttackDamage);
-        }));
-
-        cooldownTimer = heavyAttackCooldown;
         isAttacking = false;
     }
 
@@ -461,28 +448,24 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         comboTimer = 0f;
         OnComboChanged?.Invoke(comboCount);
 
-        int diff = comboCount - lastChargeThreshold;
-        if (diff >= hitsPerCharge)
+        if (currentChargeHits < hitsToFullCharge)
         {
-            int gained = diff / hitsPerCharge;
-            charges += gained;
-            lastChargeThreshold += gained * hitsPerCharge;
-            OnChargesChanged?.Invoke(charges);
+            currentChargeHits++;
+            OnChargeProgressChanged?.Invoke(currentChargeHits);
         }
     }
+
 
     private void ResetCombo()
     {
         comboCount = 0;
         comboTimer = 0f;
-        lastChargeThreshold = 0;
         OnComboChanged?.Invoke(comboCount);
     }
 
 
     private void PerformStrongPunch()
     {
-        if (charges <= 0) return;
         if (playerCamera == null) return;
 
         playerSounds?.PlayAttackSwing(true);
@@ -529,8 +512,9 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
         StartCoroutine(CameraImpact(null));
 
-        charges = Mathf.Max(0, charges - 1);
-        OnChargesChanged?.Invoke(charges);
+        currentChargeHits = 0;
+        OnChargeProgressChanged?.Invoke(currentChargeHits);
+
         cooldownTimer = heavyAttackCooldown;
     }
 
@@ -586,7 +570,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
     private void FixedUpdate()
     {
-        print(health);
+
         if (GameManager.Instance != null &&
             GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
@@ -643,7 +627,7 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         lookAction?.Disable();
         jumpAction?.Disable();
         attackAction?.Disable();
-        heavyAttackAction?.Disable();
+
     }
 
     private void OnDrawGizmosSelected()
@@ -693,7 +677,5 @@ public class PlayerMovement : MonoBehaviour, IDamageable
         //TODO: Implement death behavior (e.g., respawn, game over screen)
     }
 
-    public int GetComboCount() => comboCount;
-    public int GetCharges() => charges;
 
 }
