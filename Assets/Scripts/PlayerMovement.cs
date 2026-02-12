@@ -114,9 +114,15 @@ public class PlayerMovement : MonoBehaviour, IDamageable
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
-        OnPlayerSpawned?.Invoke(this);
     }
+
 
     private void Start()
     {

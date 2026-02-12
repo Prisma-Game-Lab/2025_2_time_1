@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class ComboUI : MonoBehaviour
 {
@@ -13,34 +14,47 @@ public class ComboUI : MonoBehaviour
 
     private PlayerMovement player;
 
-    private void Awake()
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (player != null)
+            player.OnChargeProgressChanged -= UpdateChargeBar;
+    }
+
+    private void Start()
     {
         chargeSlider.maxValue = 3;
         chargeSlider.value = 0;
 
-        // Escuta quando o Player nascer
-        PlayerMovement.OnPlayerSpawned += ConnectToPlayer;
-
-        // Caso o player já exista
-        if (PlayerMovement.Instance != null)
-        {
-            ConnectToPlayer(PlayerMovement.Instance);
-        }
+        ConnectToPlayer();
     }
 
-    private void ConnectToPlayer(PlayerMovement pm)
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        player = pm;
-        player.OnChargeProgressChanged += UpdateChargeBar;
-        UpdateChargeBar(0);
+        ConnectToPlayer();
     }
 
-    private void OnDestroy()
+    void ConnectToPlayer()
     {
-        PlayerMovement.OnPlayerSpawned -= ConnectToPlayer;
+        player = FindObjectOfType<PlayerMovement>();
 
         if (player != null)
+        {
             player.OnChargeProgressChanged -= UpdateChargeBar;
+            player.OnChargeProgressChanged += UpdateChargeBar;
+
+            Debug.Log("ComboUI conectado ao Player.");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerMovement NÃO encontrado na cena.");
+        }
     }
 
     private void UpdateChargeBar(int value)
